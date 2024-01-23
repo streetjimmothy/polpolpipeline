@@ -26,13 +26,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: deploy
+      - run: chmod 600 deploy/tw_compute.pem 
       
       - uses: actions/checkout@v4
         with: 
           repository: streetjimmothy/polpolgraph
           path: targets/polpolgraph
           token: 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
-      - run: ssh -vvv ubuntu@118.138.245.225 -i "deploy/tw_compute.pem" -o "StrictHostKeyChecking=no"
+      - run: ssh -vv ubuntu@118.138.245.225 -i "deploy/tw_compute.pem" -o "StrictHostKeyChecking=no"
       #- run: rsync -avz --delete --exclude .git/ -e "ssh -i deploy/tw_compute.pem" targets/polpolgraph/ ubuntu@118.138.245.225:~/targets/polpolgraph/
 
 
