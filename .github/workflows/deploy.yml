@@ -28,7 +28,7 @@ jobs:
           path: deploy
       - run: chmod 600 deploy/tw_compute.pem
       - run: ssh ubuntu@118.138.244.221 -i "deploy/tw_compute.pem" -o "StrictHostKeyChecking=no" # we can't add ssh -o to rsync -e, so we need to connect here to add the key to the hosts file
-      - run: rsync -avz --delete --mkpath --exclude .git/ --exclude .vscode/ deploy ubuntu@118.138.244.221:/home/ubuntu/pipeline -e "ssh -i deploy/tw_compute.pem" 
+      - run: rsync -avz --delete --mkpath --exclude .git/ --exclude .vscode/ deploy/ ubuntu@118.138.244.221:/home/ubuntu/pipeline -e "ssh -i deploy/tw_compute.pem" 
 
       - uses: actions/checkout@v4
         with: 
