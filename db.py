@@ -29,6 +29,7 @@ class Tweet:
 		self.user = tweet['user']
 		self.connected_user = tweet['connected_user']
 		self.connection_type = tweet['connection_type']
+		self.text = tweet['text']
 
 
 class DB:
