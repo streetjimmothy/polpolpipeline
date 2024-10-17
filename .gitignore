@@ -134,3 +134,4 @@ cython_debug/
 
 *.log
 *.pdf
+*.graphml
