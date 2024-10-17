@@ -45,23 +45,34 @@ class DB:
 		self.tu_coll = client.get_database('Tw_Covid_DB').get_collection('users')
 		logging.info("connected")
 
-	def run_query(self):
-		if self.query_results is None:
+	def run_query(self, query = None, cache = False):
+		if not cache or self.query_results is None:
 			logging.info("running query...")
-			query = None
+			# a query or queryfile on the commend line overrides one hardcoded
 			try:
 				if args.query is not None:
 					query = args.query
-				if args.query_file is not None:
-					with open(args.query_file, 'r') as f:
+			except:
+				pass
+			try:
+				#if query is passed in or taken from the command line, attempt to openm it as a file
+				if query is not None:
+					with open(query, 'r') as f:
+						#if it is a file, read the query from the file
 						query = f.read()
 			except:
-				if query is None:
-					with open(os.path.join(os.path.dirname(os.path.realpath(__file__)),"query.json"), 'r') as f:
-						query = f.read()
-			query = re.sub(r'\s+', ' ', query)
-			self.query_results = self.tw_coll.find(loads(query))
+				pass
+			#either the query is passed in, taken from the command line, or read from file
+			#if none of the above, read the default query
+			if query is None:
+				with open(os.path.join(os.path.dirname(os.path.realpath(__file__)),"query.json"), 'r') as f:
+					query = f.read()
+			if isinstance(query, str):
+				query = re.sub(r'\s+', ' ', query) #remove extra spaces?
+				query = loads(query)
+			self.query_results = self.tw_coll.find(query, no_cursor_timeout=True)
 		else:
+			#This shouldn't actually be done, because what's in the cache is only the cursor, not the data...
 			logging.info("Loading query from cache.")
 		return self.query_results
 
