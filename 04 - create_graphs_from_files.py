@@ -1,11 +1,9 @@
-#import modules used for performance profiling
 import time
 import humanize
 import psutil
 import json
 import os
 import argparse
-import logging
 
 #import modules used for network analysis
 import networkx as nx
@@ -153,11 +151,6 @@ if __name__ == "__main__":
 
 	output_file_base = ""
 	args = parser.parse_args()
-
-	# if args.verbose:
-	# 	logging.basicConfig(level=logging.DEBUG, format='%(asctime)s::%(levelname)s:%(message)s')
-	# else:
-	# 	logging.basicConfig(level=logging.INFO, format='%(asctime)s::%(levelname)s:%(message)s')
 
 	start_time = time.time()
 	if not args.input_file:

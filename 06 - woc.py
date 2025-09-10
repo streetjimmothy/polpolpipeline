@@ -635,7 +635,7 @@ def wisdom_of_crowds(nx_graph, community=None, plot=False, crowd=None, filename=
 	d_set = []
 	if verbose:
 		i = 0
-	for node in crowd.node_set:
+	for i, node in enumerate(crowd.node_set):
 		if community == None:
 			s_set.append(crowd.S(node))
 			d_set.append(crowd.D(node))
@@ -643,7 +643,7 @@ def wisdom_of_crowds(nx_graph, community=None, plot=False, crowd=None, filename=
 			s_set.append(crowd.S(node))
 			d_set.append(crowd.D(node))
 		if verbose:
-			sys.stdout.write('\r' + spinner[i % len(spinner)] + ' Processing...')
+			sys.stdout.write('\r' + spinner[i % len(spinner)] + ' Processing... ' + str(i) + ' of ' + str(len(crowd.node_set)))
 			sys.stdout.flush()
 			i += 1
 	if verbose:
@@ -679,14 +679,18 @@ def wisdom_of_crowds(nx_graph, community=None, plot=False, crowd=None, filename=
 		make_sullivanplot(π_set,d_set,s_set,colormap='magma_r', suptitle=title, filename=fn)
 		print("plotting complete")
 	if filename is not None:
-		print(f"saving results to {filename + '_woc.csv'}")
-		with open(filename + '_woc.csv', 'a', newline='') as csvfile:
+		if community is not None:
+			filename = f"{filename}_woc_community_{int(community)}.csv"
+		else:
+			filename = f"{filename}_woc.csv"
+		print(f"saving results to {filename}")
+		with open(filename, 'a', newline='') as csvfile:
 			writer = csv.writer(csvfile)
-			if os.stat(filename).st_size == 0:
-				writer.writerow(['node','community','S','D','pi'])
+			if not os.path.exists(filename) or os.stat(filename).st_size == 0:
+				writer.writerow(['node','id','community','S','D','pi'])
 			for node, s, d, pi in zip(crowd.node_set, s_set, d_set, π_set):
-				writer.writerow([node,nx_graph.nodes[node]['T'],s,d,pi])
-		print("results saved to {}".format(filename + '_woc.csv'))
+				writer.writerow([node,nx_graph.nodes[node]['id'],nx_graph.nodes[node]['T'],s,d,pi])
+		print("results saved to {}".format(filename))
 	return crowd, s_set, d_set, π_set
 
 if __name__ == "__main__":
@@ -711,5 +715,5 @@ if __name__ == "__main__":
 		# if communities is -1, we run the analysis for each community
 		communities = set(nx.get_node_attributes(graph, 'T').values())
 		for community in communities:
-			wisdom_of_crowds(graph, community, plot=args.plot, filename=f"{os.path.splitext(args.input_file)[0]}", verbose=args.verbose)
+			wisdom_of_crowds(graph, int(community), plot=args.plot, filename=f"{os.path.splitext(args.input_file)[0]}", verbose=args.verbose)
 

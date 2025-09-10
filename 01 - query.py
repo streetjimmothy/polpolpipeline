@@ -8,7 +8,7 @@ import argparse
 #import database module
 from pymongo import MongoClient, errors
 
-parser = argparse.ArgumentParser(description="Runs community detection. Optionally saves central tweets to a file.")
+parser = argparse.ArgumentParser(description="Runs a query against the data base. Optiosn are selected interactively if not provided.")
 parser.add_argument("-l", "--language", required=False, help="ISO language code (e.g. 'en' for English, 'es' for Spanish, etc.). Will be requested if not provided.")
 parser.add_argument("-d", "--date-range",required=False, help="Date range from the valid options. Will be requested if not provided.")
 

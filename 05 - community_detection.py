@@ -69,6 +69,19 @@ def run_community_detection(graph):
 	print(f"Memory usage: {psutil.Process().memory_info().rss / (1024 * 1024):.2f} MB")
 	return ig_community_graph
 
+def save_file(output_file, graph):
+	print(f"Saving community information to {output_file}...")
+	try:
+		for edge in graph.es:
+			# Convert 'tweets' attribute from list to a string if it exists
+			if 'tweets' in edge.attributes():
+				if edge['tweets'] is not None:
+					edge['tweets'] = ';'.join(edge['tweets'])  # Join the list into a string
+		graph.write_graphml(output_file)
+		print(f"Community information saved to {output_file}")
+	except Exception as e:
+		print(f"Error saving community graph to {output_file}: {e}")
+
 def save_central_tweets(community_graph, main_graph, output_file, n=0, p=5):
 	#PRINT TWEETS FROM n MOST CENTRAL NODES FROM EACH COMMUNITY that is more than p% of the graph TO FILE
 
@@ -78,14 +91,14 @@ def save_central_tweets(community_graph, main_graph, output_file, n=0, p=5):
 	print("connecting...")
 	client = MongoClient(CONNECTION_STRING)
 	tw_coll = client.get_database('Tw_Covid_DB').get_collection('tweets')
-	tu_coll = client.get_database('Tw_Covid_DB').get_collection('users')
 	print("connected")
 	#internal function to make a query to the database, breaking it into chunks if necessary
 	def make_query(query_list):
 		# Create a query to find tweets with the specified IDs
 		try:
 			cursor = tw_coll.find({"_id": {'$in': query_list}})
-		except errors.DocumentTooLarge:
+			print(cursor[0])
+		except errors.DocumentTooLarge as e:
 			# If the query is too large, split it into smaller chunks
 			cursor = []
 			for i in range(0, len(query_list), 1000):
@@ -94,13 +107,16 @@ def save_central_tweets(community_graph, main_graph, output_file, n=0, p=5):
 			cursor = list(cursor)
 		return cursor
 
+	# print("Collecting graph stats...")
+	# start_time = time.time()
 	# Get all subgraphs
 	subgraphs = community_graph.subgraphs()
 	#TODO: Should be directed?
 	all_betweenness = main_graph.betweenness()
 	all_closeness = main_graph.closeness()
 	all_eigenvector_centrality = main_graph.eigenvector_centrality()
-
+	print(f"Total time taken: {humanize.naturaldelta(time.time() - start_time)}")
+	print(f"Memory usage: {psutil.Process().memory_info().rss / (1024 * 1024):.2f} MB")
 
 	# Sort subgraphs by size in descending order
 	sorted_subgraphs = sorted(subgraphs, key=lambda x: len(x.vs), reverse=True)
@@ -108,15 +124,23 @@ def save_central_tweets(community_graph, main_graph, output_file, n=0, p=5):
 		if len(subgraph.vs)/len(main_graph.vs) > p / 100:
 			print ("Community ", i)
 			#Find higher centrality nodes in each subgraph
+			print("Collecting community stats...")
+			start_time = time.time()
 			nodes = sorted(subgraph.vs, key=lambda vertex: vertex.degree(), reverse=True)
 			central_nodes = nodes[:n]
 			comm_betweenness = subgraph.betweenness()
 			comm_closeness = subgraph.closeness()
 			comm_eigenvector_centrality = subgraph.eigenvector_centrality()
+			print(f"Total time taken: {humanize.naturaldelta(time.time() - start_time)}")
+			print(f"Memory usage: {psutil.Process().memory_info().rss / (1024 * 1024):.2f} MB")
+			if n == -1:
+				filename = f"{output_file}_{i}comm_all"
+			else:
+				filename = f"{output_file}_{i}comm_{n}central"
 			with \
-				open(f"{output_file}_{i}comm_{n}central_tweets.csv", "w", encoding="utf-8") as csv_file, \
-				open(f"{output_file}_{i}comm_{n}central_nodes_stats.csv", "w", encoding="utf-8") as nodes_csv_file, \
-				open(f"{output_file}_{i}comm_{n}central_tweets.txt", "w", encoding="utf-8") as text_file:
+				open(f"{filename}_nodes_tweets.csv", "w", encoding="utf-8") as csv_file, \
+				open(f"{filename}_nodes_stats.csv", "w", encoding="utf-8") as nodes_csv_file, \
+				open(f"{filename}_nodes_tweets.txt", "w", encoding="utf-8") as text_file:
 					writer = csv.writer(csv_file)
 					nodes_writer = csv.writer(nodes_csv_file)
 					# Write header
@@ -220,12 +244,7 @@ if __name__ == "__main__":
 		ig_community_graph = run_community_detection(ig_g)
 		print_community_stats(ig_community_graph, ig_g, args.community_size)
 		if output_file:
-			print(f"Saving community information to {output_file}...")
-			try:
-				ig_g.write_graphml(output_file)
-				print(f"Community information saved to {output_file}")
-			except Exception as e:
-				print(f"Error saving community graph to {output_file}: {e}")
+			save_file(output_file, ig_g)
 		print(f"Community detection completed for {input_file}")
 		print("Saving central tweets to file...")
 		save_central_tweets(ig_community_graph, ig_g, os.path.splitext(output_file)[0], args.save_central_tweets, args.community_size)
