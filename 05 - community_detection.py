@@ -1,4 +1,4 @@
-#import modules used for performance profiling
+# import modules used for performance profiling
 import time
 import humanize
 import psutil
@@ -6,12 +6,14 @@ import os
 import argparse
 import csv
 
-#import modules used for network analysis
+# import modules used for network analysis
 import igraph
 import leidenalg
 
 # MongoDB imports
 from pymongo import MongoClient, errors
+CONNECTION_STRING = "mongodb://JamIs:morticiaetpollito@118.138.244.29:27017/"
+
 
 def print_community_stats(community_graph, main_graph, min_major_community_size=5):
 	# Get all subgraphs
@@ -22,10 +24,11 @@ def print_community_stats(community_graph, main_graph, min_major_community_size=
 		if len(subgraph.vs)/len(main_graph.vs) > min_major_community_size / 100:
 			print(f"Community {i}: {len(subgraph.vs)} nodes")
 			print(f"Community {i} as a proportion of total: {(len(subgraph.vs)/len(main_graph.vs)):.2%}")
-		
+
 	# Filter subgraphs with less than 10 nodes
 	small_subgraphs = [sg for sg in subgraphs if len(sg.vs) < 10]
 	print("Small Graphs (<10 nodes): {}".format(len(small_subgraphs)))
+
 
 def read_file(file_path):
 	"""
@@ -43,7 +46,8 @@ def read_file(file_path):
 					# This handles cases where 'tweets' might be an empty string or None
 					# and ensures we don't end up with an empty list if there are no tweets
 					tweet_ids = edge['tweets'].split(";")
-					tweet_ids = [tweet_id.strip() for tweet_id in tweet_ids if tweet_id.strip()]  # Remove empty strings ## Is this necessary??
+					# Remove empty strings ## Is this necessary??
+					tweet_ids = [tweet_id.strip() for tweet_id in tweet_ids if tweet_id.strip()]
 				edge['tweets'] = tweet_ids
 		print(f"Successfully read graph from {file_path}")
 		print("Nodes: {}".format(len(graph.vs)))
@@ -52,6 +56,7 @@ def read_file(file_path):
 	except Exception as e:
 		print(f"Error reading graph from {file_path}: {e}")
 		return None
+
 
 def run_community_detection(graph):
 	print("Doing leidenalg...")
@@ -62,12 +67,13 @@ def run_community_detection(graph):
 		try:
 			node['T'] = ig_community_graph.membership[node.index]
 		except IndexError:
-			#node not a part of the largest weakly connected component, so it won't have a community
+			# node not a part of the largest weakly connected component, so it won't have a community
 			pass
 	elapsed_time = time.time() - start_time
 	print(f"Total time taken: {humanize.naturaldelta(elapsed_time)}")
 	print(f"Memory usage: {psutil.Process().memory_info().rss / (1024 * 1024):.2f} MB")
 	return ig_community_graph
+
 
 def save_file(output_file, graph):
 	print(f"Saving community information to {output_file}...")
@@ -82,21 +88,24 @@ def save_file(output_file, graph):
 	except Exception as e:
 		print(f"Error saving community graph to {output_file}: {e}")
 
+
 def save_central_tweets(community_graph, main_graph, output_file, n=0, p=5):
-	#PRINT TWEETS FROM n MOST CENTRAL NODES FROM EACH COMMUNITY that is more than p% of the graph TO FILE
+	# PRINT TWEETS FROM n MOST CENTRAL NODES FROM EACH COMMUNITY that is more than p% of the graph TO FILE
 
-
-	#CONNECT TO DATABASE
-	CONNECTION_STRING = "mongodb://JamIs:morticiaetpollito@118.138.244.29:27017/"
+	# CONNECT TO DATABASE
 	print("connecting...")
 	client = MongoClient(CONNECTION_STRING)
 	tw_coll = client.get_database('Tw_Covid_DB').get_collection('tweets')
 	print("connected")
-	#internal function to make a query to the database, breaking it into chunks if necessary
+	# internal function to make a query to the database, breaking it into chunks if necessary
+
 	def make_query(query_list):
 		# Create a query to find tweets with the specified IDs
 		try:
+			print(f"Querying database for {len(query_list)} tweets...")
+			print(query_list)
 			cursor = tw_coll.find({"_id": {'$in': query_list}})
+			print(cursor.alive)
 			print(cursor[0])
 		except errors.DocumentTooLarge as e:
 			# If the query is too large, split it into smaller chunks
@@ -105,10 +114,28 @@ def save_central_tweets(community_graph, main_graph, output_file, n=0, p=5):
 				chunk = query_list[i:i + 1000]
 				cursor.extend(tw_coll.find({"_id": {'$in': chunk}}))
 			cursor = list(cursor)
+		except errors.OperationFailure as e:
+			print(f"Operation failed: {e}")
+			exit()
+		except errors.ServerSelectionTimeoutError as e:
+			print(f"Server selection timeout: {e}")
+			exit()
+		except errors.NetworkTimeout as e:
+			print(f"Network timeout: {e}")
+			exit()
+		except errors.CursorNotFound as e:
+			print(f"Cursor not found: {e}")
+			exit()
+		except errors.ExecutionTimeout as e:
+			print(f"Execution timeout: {e}")
+			exit()
+		except errors.PyMongoError as e:
+			print(f"General PyMongo error: {e}")
+			exit()
 		return cursor
 
-	# print("Collecting graph stats...")
-	# start_time = time.time()
+	print("Collecting graph stats...")
+	start_time = time.time()
 	# Get all subgraphs
 	subgraphs = community_graph.subgraphs()
 	#TODO: Should be directed?
@@ -190,6 +217,7 @@ if __name__ == "__main__":
 	parser.add_argument("--save-central-tweets", type=int, default=0, help="Save central tweets to a file (number of users to save tweets for, default: 0, which means no tweets will be saved. -1 will save all tweets in each community). Tweets will be saved to the output file with '_{n}central_{community_size_ranking}comm.csv' appended to the filename.")
 	parser.add_argument("--community-size", type=int, default=5, help="Size of a community to consider, as a percentage of the total graph (default: 5%%). Communities smaller than this size will not be considered for central tweets extraction.")
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
+	parser.add_argument("-db", "--db",required=False, help="Database connection string override (default: connects to Nectar MongoDB instance)")
 
 	args = parser.parse_args()
 
@@ -197,6 +225,9 @@ if __name__ == "__main__":
 	# 	logging.basicConfig(level=logging.DEBUG, format='%(asctime)s::%(levelname)s:%(message)s')
 	# else:
 	# 	logging.basicConfig(level=logging.INFO, format='%(asctime)s::%(levelname)s:%(message)s')
+
+	if args.db:
+		CONNECTION_STRING = args.db
 
 	start_time = time.time()
 	if not args.input_file:
