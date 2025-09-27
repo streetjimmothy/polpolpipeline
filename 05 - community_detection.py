@@ -275,7 +275,7 @@ if __name__ == "__main__":
 			save_file(output_file, ig_g)
 		print(f"Community detection completed for {input_file}")
 		print("Saving central tweets to file...")
-		save_central_tweets(ig_community_graph, ig_g, os.path.splitext(output_file)[0], args.save_central_tweets, args.target_community args.community_size)
+		save_central_tweets(ig_community_graph, ig_g, os.path.splitext(output_file)[0], args.save_central_tweets, args.target_community, args.community_size)
 
 
 	elapsed_time = time.time() - start_time
