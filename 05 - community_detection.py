@@ -46,8 +46,7 @@ def read_file(file_path):
 					# This handles cases where 'tweets' might be an empty string or None
 					# and ensures we don't end up with an empty list if there are no tweets
 					tweet_ids = edge['tweets'].split(";")
-					# Remove empty strings ## Is this necessary??
-					tweet_ids = [tweet_id.strip() for tweet_id in tweet_ids if tweet_id.strip()]
+					tweet_ids = [tweet_id.strip() for tweet_id in tweet_ids if tweet_id.strip()] # Remove empty strings ## Is this necessary??
 				edge['tweets'] = tweet_ids
 		print(f"Successfully read graph from {file_path}")
 		print("Nodes: {}".format(len(graph.vs)))
@@ -89,8 +88,8 @@ def save_file(output_file, graph):
 		print(f"Error saving community graph to {output_file}: {e}")
 
 
-def save_central_tweets(community_graph, main_graph, output_file, n=0, p=5):
-	# PRINT TWEETS FROM n MOST CENTRAL NODES FROM EACH COMMUNITY that is more than p% of the graph TO FILE
+def save_central_tweets(community_graph, main_graph, output_file, num_nodes=0, target_community=-1, p=5):
+	# PRINT TWEETS FROM num_nodes MOST CENTRAL NODES FROM EACH COMMUNITY that is more than p% of the graph TO FILE
 
 	# CONNECT TO DATABASE
 	print("connecting...")
@@ -103,10 +102,7 @@ def save_central_tweets(community_graph, main_graph, output_file, n=0, p=5):
 		# Create a query to find tweets with the specified IDs
 		try:
 			print(f"Querying database for {len(query_list)} tweets...")
-			print(query_list)
 			cursor = tw_coll.find({"_id": {'$in': query_list}})
-			print(cursor.alive)
-			print(cursor[0])
 		except errors.DocumentTooLarge as e:
 			# If the query is too large, split it into smaller chunks
 			cursor = []
@@ -148,22 +144,22 @@ def save_central_tweets(community_graph, main_graph, output_file, n=0, p=5):
 	# Sort subgraphs by size in descending order
 	sorted_subgraphs = sorted(subgraphs, key=lambda x: len(x.vs), reverse=True)
 	for i, subgraph in enumerate(sorted_subgraphs):
-		if len(subgraph.vs)/len(main_graph.vs) > p / 100:
+		if len(subgraph.vs)/len(main_graph.vs) > p / 100 and (target_community == -1 or target_community == i):
 			print ("Community ", i)
 			#Find higher centrality nodes in each subgraph
 			print("Collecting community stats...")
 			start_time = time.time()
 			nodes = sorted(subgraph.vs, key=lambda vertex: vertex.degree(), reverse=True)
-			central_nodes = nodes[:n]
+			central_nodes = nodes[:num_nodes]
 			comm_betweenness = subgraph.betweenness()
 			comm_closeness = subgraph.closeness()
 			comm_eigenvector_centrality = subgraph.eigenvector_centrality()
 			print(f"Total time taken: {humanize.naturaldelta(time.time() - start_time)}")
 			print(f"Memory usage: {psutil.Process().memory_info().rss / (1024 * 1024):.2f} MB")
-			if n == -1:
+			if num_nodes == -1:
 				filename = f"{output_file}_{i}comm_all"
 			else:
-				filename = f"{output_file}_{i}comm_{n}central"
+				filename = f"{output_file}_{i}comm_{num_nodes}central"
 			with \
 				open(f"{filename}_nodes_tweets.csv", "w", encoding="utf-8") as csv_file, \
 				open(f"{filename}_nodes_stats.csv", "w", encoding="utf-8") as nodes_csv_file, \
@@ -216,6 +212,7 @@ if __name__ == "__main__":
 	parser.add_argument("-o", "--output_file","--output_files", "--output_dir", nargs='+', required=False, help="Path to save the graph with community information (default: saves to input file)")
 	parser.add_argument("--save-central-tweets", type=int, default=0, help="Save central tweets to a file (number of users to save tweets for, default: 0, which means no tweets will be saved. -1 will save all tweets in each community). Tweets will be saved to the output file with '_{n}central_{community_size_ranking}comm.csv' appended to the filename.")
 	parser.add_argument("--community-size", type=int, default=5, help="Size of a community to consider, as a percentage of the total graph (default: 5%%). Communities smaller than this size will not be considered for central tweets extraction.")
+	parser.add_argument("--target-community", type=int, default=-1, help="If specified, only save tweets from this community (default: -1, which means all communities will be processed)")
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
 	parser.add_argument("-db", "--db",required=False, help="Database connection string override (default: connects to Nectar MongoDB instance)")
 
@@ -278,7 +275,7 @@ if __name__ == "__main__":
 			save_file(output_file, ig_g)
 		print(f"Community detection completed for {input_file}")
 		print("Saving central tweets to file...")
-		save_central_tweets(ig_community_graph, ig_g, os.path.splitext(output_file)[0], args.save_central_tweets, args.community_size)
+		save_central_tweets(ig_community_graph, ig_g, os.path.splitext(output_file)[0], args.save_central_tweets, args.target_community args.community_size)
 
 
 	elapsed_time = time.time() - start_time
