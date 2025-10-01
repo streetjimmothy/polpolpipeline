@@ -212,7 +212,7 @@ if __name__ == "__main__":
 	parser.add_argument("-o", "--output_file","--output_files", "--output_dir", nargs='+', required=False, help="Path to save the graph with community information (default: saves to input file)")
 	parser.add_argument("--save-central-tweets", type=int, default=0, help="Save central tweets to a file (number of users to save tweets for, default: 0, which means no tweets will be saved. -1 will save all tweets in each community). Tweets will be saved to the output file with '_{n}central_{community_size_ranking}comm.csv' appended to the filename.")
 	parser.add_argument("--community-size", type=int, default=5, help="Size of a community to consider, as a percentage of the total graph (default: 5%%). Communities smaller than this size will not be considered for central tweets extraction.")
-	parser.add_argument("--target-community", type=int, default=-1, help="If specified, only save tweets from this community (default: -1, which means all communities will be processed)")
+	parser.add_argument("--target-community", type=int, default=-1, help="If specified, only save tweets from this community (default: -1, which means all communities will be processed). 0 indexed.")
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
 	parser.add_argument("-db", "--db",required=False, help="Database connection string override (default: connects to Nectar MongoDB instance)")
 
