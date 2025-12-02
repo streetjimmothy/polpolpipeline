@@ -5,6 +5,17 @@ import asyncio
 import random
 from urllib.parse import urlparse
 import httpx 
+from tqdm.asyncio import tqdm_asyncio
+from tqdm import tqdm
+
+#find_module shim. (used by snscrape, deprecated in python3.13)
+import importlib.machinery as m
+if not hasattr(m.FileFinder, "find_module"):
+    def _find_module(self, fullname, path=None):
+        spec = self.find_spec(fullname)
+        return spec.loader if spec else None
+    m.FileFinder.find_module = _find_module
+
 import snscrape.modules.twitter as sntwitter
 
 
@@ -166,7 +177,8 @@ async def _resolve_all_async(urls: list[str]) -> None:
 		async with sem:
 			await resolve_url(u)
 
-	await asyncio.gather(*(worker(u) for u in urls))
+	# Use tqdm over tasks; tqdm_asyncio.gather provides progress tracking
+	await tqdm_asyncio.gather(*(worker(u) for u in urls), total=len(urls), desc="Resolving URLs", ncols=100)
 
 
 async def _resolve_tweets_async(tweet_placeholder_urls: list[str]) -> None:
@@ -179,7 +191,7 @@ async def _resolve_tweets_async(tweet_placeholder_urls: list[str]) -> None:
 		async with sem:
 			await get_tweet_info_from_id(tweet_id)
 
-	await asyncio.gather(*(worker(u) for u in tweet_placeholder_urls))
+	await tqdm_asyncio.gather(*(worker(u) for u in tweet_placeholder_urls), total=len(tweet_placeholder_urls), desc="Scraping Tweets", ncols=100)
 
 
 def _rewrite_line(line: str) -> str:
@@ -212,9 +224,11 @@ async def process_file_async(infile: str, outfile: str):
 	await _resolve_tweets_async(tweet_urls)
 
 	# Phase 4: rewrite output
-	with open(infile, 'r', encoding='utf-8', errors='ignore') as fin, \
-		 open(outfile, 'w', encoding='utf-8', newline='') as fout:
-		for line in fin:
+	with open(infile, 'r', encoding='utf-8', errors='ignore') as fin:
+		lines = fin.readlines()
+
+	with open(outfile, 'w', encoding='utf-8', newline='') as fout:
+		for line in tqdm(lines, desc="Rewriting", ncols=100):
 			fout.write(_rewrite_line(line))
 
 	# Graceful close of async client
