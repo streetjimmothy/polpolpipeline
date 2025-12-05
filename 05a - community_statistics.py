@@ -2,6 +2,7 @@ import argparse
 import os
 import networkx as nx
 from collections import defaultdict
+import utilities as util
 
 def print_community_stats(community_graph, main_graph, min_major_community_size=5):
 	# Get all subgraphs
@@ -18,30 +19,19 @@ def print_community_stats(community_graph, main_graph, min_major_community_size=
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="Prints statistics about communities in a graphml file.")
-	parser.add_argument("-i", "--input_file", "--input_files", "--input_dir", nargs='+', required=True, help="Path to the input graphml file (multiple files can be specified, the process will be run for each. A directory can also be specified, in which case all graphml files in that directory will be used)")
+	util.create_input_args(parser, ext=".graphml")
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
 	parser.add_argument("--community_label", "-C", help="Label attribute for community detection (default: 'community')", default="community")
 	parser.add_argument("--community-size", type=int, default=5, help="Size of a community to consider, as a percentage of the total graph (default: 5%%).")
 
 	args = parser.parse_args()
 
-	if not args.input_file:
-		print("No input file specified")
-		exit(1)
-	if len(args.input_file) > 1:
-		print(f"Multiple input files specified: {args.input_file}")
-	else:
-		if os.path.isdir(args.input_file[0]):
-			# If a directory is specified, get all graphml files in that directory
-			args.input_file = [os.path.join(args.input_file[0], f) for f in os.listdir(args.input_file[0]) if f.endswith('.graphml')]
-			if not args.input_file:
-				print(f"No graphml files found in directory: {args.input_file[0]}")
-				exit(1)
-			print(f"Input directory specified, using files: {args.input_file}")
-		else:
-			print(f"Single input file specified: {args.input_file[0]}")
+	input_files = util.parse_input_files_arg(args.input_file, ext=".graphml")
 
-	for input_path in args.input_file:
+	for input_path in input_files:
+		if not os.path.exists(input_path):
+			print(f"Input file does not exist: {input_path}")
+			exit(1)
 		if args.verbose:
 			print(f"Loading graph from: {input_path}")
 		G = nx.read_graphml(input_path)

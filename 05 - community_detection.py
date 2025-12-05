@@ -14,6 +14,7 @@ import leidenalg
 from pymongo import MongoClient, errors
 CONNECTION_STRING = "mongodb://JamIs:morticiaetpollito@118.138.244.29:27017/"
 
+import utilities as util
 
 def print_community_stats(community_graph, main_graph, min_major_community_size=5):
 	# Get all subgraphs
@@ -208,8 +209,9 @@ def save_central_tweets(community_graph, main_graph, output_file, num_nodes=0, t
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="Runs community detection. Optionally saves central tweets to a file.")
-	parser.add_argument("-i", "--input_file","--input_files", "--input_dir", nargs='+', required=True, help="Path to the input graphml file (multiple files can be specified, the process will be run for each and they will be saved to the specified output file - or, if no output file is specified each will be saved back to the input file. A directory can also be specified, in which case all graphml files in that directory will be used)")
-	parser.add_argument("-o", "--output_file","--output_files", "--output_dir", nargs='+', required=False, help="Path to save the graph with community information (default: saves to input file)")
+	util.create_input_args(parser, help="Path to the input graphml file (multiple files can be specified, the process will be run for each and they will be saved to the specified output file - or, if no output file is specified each will be saved back to the input file. A directory can also be specified, in which case all graphml files in that directory will be used)")
+	util.create_output_args(parser, suffix=".graphml (i.e. save back to input file)")
+	
 	parser.add_argument("--save-central-tweets", type=int, default=0, help="Save central tweets to a file (number of users to save tweets for, default: 0, which means no tweets will be saved. -1 will save all tweets in each community). Tweets will be saved to the output file with '_{n}central_{community_size_ranking}comm.csv' appended to the filename.")
 	parser.add_argument("--community-size", type=int, default=5, help="Size of a community to consider, as a percentage of the total graph (default: 5%%). Communities smaller than this size will not be considered for central tweets extraction.")
 	parser.add_argument("--target-community", type=int, default=-1, help="If specified, only save tweets from this community (default: -1, which means all communities will be processed). 0 indexed.")
@@ -227,40 +229,10 @@ if __name__ == "__main__":
 		CONNECTION_STRING = args.db
 
 	start_time = time.time()
-	if not args.input_file:
-		print("No input file specified")
-		exit(1)
-	if len(args.input_file) > 1:
-		print(f"Multiple input files specified: {args.input_file}")
-	else:
-		if os.path.isdir(args.input_file[0]):
-			# If a directory is specified, get all graphml files in that directory
-			args.input_file = [os.path.join(args.input_file[0], f) for f in os.listdir(args.input_file[0]) if f.endswith('.graphml')]
-			if not args.input_file:
-				print(f"No graphml files found in directory: {args.input_file[0]}")
-				exit(1)
-			print(f"Input directory specified, using files: {args.input_file}")
-		else:
-			print(f"Single input file specified: {args.input_file[0]}")
+	input_files = util.parse_input_files_arg(args.input_file, ext=".graphml")
+	output_files = util.parse_output_files_arg(args.output_file, input_files)
 
-	if not args.output_file:
-		print(f"Output file not specified, community information will be saved to the input file")
-		args.output_file = args.input_file
-	else:
-		if os.path.isdir(args.output_file[0]):
-			output_files = []
-			for input_file in args.input_file:
-				output_file = os.path.join(args.output_file[0], os.path.basename(input_file))
-				output_files.append(output_file)
-			print(f"Community information will be saved as: {output_files} in {args.output_file[0]}")
-			args.output_file = output_files
-		else:
-			if len(args.output_file) != len(args.input_file):
-				print(f"Number of output files ({len(args.output_file)}) does not match number of input files ({len(args.input_file)}). ")
-				exit(1)
-			print(f"Input files {args.input_file} map to {args.output_file}")
-
-	for input_file, output_file in zip(args.input_file, args.output_file):
+	for input_file, output_file in zip(input_files, output_files):
 		if not os.path.exists(input_file):
 			print(f"Input file does not exist: {input_file}")
 			exit(1)

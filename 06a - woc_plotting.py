@@ -1,6 +1,3 @@
-import time
-import humanize
-import psutil
 import os
 import argparse
 import csv
@@ -10,6 +7,8 @@ from collections import Counter, defaultdict
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.colors import Normalize
+import math
+import utilities as util
 
 def make_urgellplot_zoomed(nodes, colormap='cool', suptitle=None, cax=None, yscale='linear', filename=None, region=0.2):
 	assert(len(nodes) > 0)
@@ -41,8 +40,12 @@ def make_urgellplot_zoomed(nodes, colormap='cool', suptitle=None, cax=None, ysca
 	ax.bar(π_bars_centers,π_bars_height,width=π_bars_width,color=D_colours)
 	ax.plot(x,S_line,c='k')
 
-	ax.set_xticks([0,0.02,0.04,0.06,0.08,0.1,0.12,0.14,0.16,0.18,0.2])
-	ax.set_xlim((0,region))
+	# Set 6 evenly spaced ticks from 0 to region (inclusive)
+	num_ticks = 8
+	xticks = [region * i / (num_ticks - 1) for i in range(num_ticks)]
+	ax.set_xticks(xticks)
+	ax.set_xticklabels([f"{tick:.3g}" for tick in xticks])
+	ax.set_xlim((0, region))
 
 	ax.yaxis.tick_left()
 	ax.yaxis.grid()
@@ -193,85 +196,117 @@ class NodeData:
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="Plots an existing WoC output from a csv. \n Saves output to a sullivan plot")
-	parser.add_argument("-i", "--input_file", required=True, help="Path to the input graphml file.")
-	parser.add_argument("-o", "--output_file", required=False, help="Path to save the results (default: saves to input file + '.png' or input file + '_{community}.png').")
+	util.create_input_args(parser, ext=".csv")
+	util.create_output_args(parser, suffix="{plot_type}_{plot_community}.png")	#TODO: This isn't actually used properly yet
 	parser.add_argument("-c", "--community", type=int, default=-1, help="Community to plot for (Special Values: -1 (default) - entire file is treated as one community; -2 - iterates over each community and plots each seperately). Will error if the input file does not have a community column.")
-	parser.add_argument("-z", "--zoom", type=float, default=0.2, help="Zoom region for urgell plot (default 0.2 = 20%% of the x axis). Only applies to urgell plots.")
+	parser.add_argument("-z", "--zoom", type=float, default=0.2, help="Zoom region for urgell plot (default 0.2 = 20% of the x axis). Only applies to urgell plots.")
 	parser.add_argument("-p", "--plot_type", type=str, default="urgell", choices=["urgell", "sullivan"], help="Type of plot to generate (default: urgell).")
 	parser.add_argument("-m", "--merge_plots", action='store_true', help="If set, merges all community plots into a single plot (only applicable when plotting all communities).")
 	parser.add_argument("-d", "--max-degree", type=int, default=9, help="Maximum degree to consider when plotting (default: 9). Nodes with degree higher than this will be treated as having this degree.")
+	parser.add_argument("--comm_min", type=float, default=0.0, help="Threshold for communities to plot. If n<1, plot all communites larger than n% of the total graph size. If n>1 plot n largest communities (default: 0.0, plot all).")
 
 	args = parser.parse_args()
 	
 	title = None
 
+	input_paths = util.parse_input_files_arg(args.input_file, ext=".json")
+	output_files = util.parse_output_files_arg(args.output, input_paths)
 
-	with open(args.input_file, 'r') as infile:
-		reader = csv.DictReader(infile)
-		# make one plot per community
-		comm_dict = defaultdict(list)  # maps community -> (list of pi, list of D, list of S)
-		if args.community == -1:
-			for row in reader:
-				_S = int(row['S'])
-				_D = min(int(row['D']), args.max_degree) 
-				_π = _S * _D
-				comm_dict[0].append(
-					NodeData(
-						community = 0,
-						S = _S,
-						D = _D,
-						π = _π
-					)
-				)
-		else:
-			for row in reader:
-				comm = int(float(row['community']))
-				if comm < 4 and (args.community == -2 or comm == args.community):
+	for input_path in input_paths:
+		with open(input_path, 'r') as infile:
+			reader = csv.DictReader(infile)
+			# make one plot per community
+			comm_dict = defaultdict(list)  # maps community -> (list of pi, list of D, list of S)
+			num_nodes = 0
+			if args.community == -1:
+				for row in reader:
 					_S = int(row['S'])
 					_D = min(int(row['D']), args.max_degree) 
 					_π = _S * _D
-					comm_dict[comm].append(
+					comm_dict[0].append(
 						NodeData(
-							community = int(float(row['community'])),
+							community = 0,
 							S = _S,
 							D = _D,
 							π = _π
 						)
 					)
-		num_comms = len(comm_dict)
-		comm_dict = dict(sorted(comm_dict.items()))  # sort by community number
-		print(f"Loaded {len(comm_dict)} communities from {args.input_file}")
+					num_nodes += 1
+			else:
+				for row in reader:
+					comm = int(float(row['Community']))
+					if comm < 4 and (args.community == -2 or comm == args.community):
+						_S = int(row['S'])
+						_D = min(int(row['D']), args.max_degree) 
+						_π = _S * _D
+						comm_dict[comm].append(
+							NodeData(
+								community = int(float(row['Community'])),
+								S = _S,
+								D = _D,
+								π = _π
+							)
+						)
+					num_nodes += 1
+			# Filter communities by minimum size fraction if requested
+			if args.comm_min > 1:
+				# Keep only the n largest communities
+				sorted_comms = sorted(comm_dict.items(), key=lambda item: len(item[1]), reverse=True)
+				comm_dict = dict(sorted_comms[:int(args.comm_min)])
+			else:
+				comm_dict = dict(sorted(comm_dict.items()))  # sort by community number
+				min_frac = args.comm_min
+				if min_frac > 0:
+					comm_dict = {k: v for k, v in comm_dict.items() if len(v) >= min_frac * num_nodes }
+				num_comms = len(comm_dict)
+				print(f"Loaded {num_comms} communities from {input_path} (threshold: {min_frac})")
 
-		merge_axes = None
-		if args.merge_plots and args.community == -2:
-			fig = plt.figure(figsize=(20,10),facecolor='w')
-			if num_comms == 1:
-				merge_axes = [fig.add_subplot(111)]
-			elif num_comms == 2:
-				merge_axes = [fig.add_subplot(121), fig.add_subplot(122)]
-			elif num_comms == 3:
-				merge_axes = [fig.add_subplot(311), fig.add_subplot(312), fig.add_subplot(313)]
-			elif num_comms == 4:
-				merge_axes = [fig.add_subplot(221), fig.add_subplot(222), fig.add_subplot(223), fig.add_subplot(224)]
-			elif num_comms == 5:
-				merge_axes = [fig.add_subplot(511), fig.add_subplot(512), fig.add_subplot(513), fig.add_subplot(514), fig.add_subplot(515)]
-			elif num_comms == 6:
-				merge_axes = [fig.add_subplot(231), fig.add_subplot(232), fig.add_subplot(233), fig.add_subplot(234), fig.add_subplot(235), fig.add_subplot(236)]
+			if num_comms == 0:
+				print("No communities to plot after applying filters.")
+				continue
 
+			merge_axes = None
+			if args.merge_plots and args.community == -2:
+				# Compute grid shape as square as possible
+				n = num_comms
+				ncols = math.ceil(math.sqrt(n))
+				nrows = math.ceil(n / ncols)
+				fig, axes = plt.subplots(nrows, ncols, figsize=(8*ncols, 4*nrows), facecolor='w')
+				axes = axes.flatten() if n > 1 else [axes]
+				# Remove unused axes and center last row
+				if n < nrows * ncols:
+					# Hide unused axes
+					for ax in axes[n:]:
+						ax.set_visible(False)
+					# Center last row
+					last_row_start = (nrows - 1) * ncols
+					last_row_count = n - last_row_start
+					if last_row_count < ncols:
+						offset = (ncols - last_row_count) // 2
+						for i in range(ncols):
+							idx = last_row_start + i
+							if i < offset or i >= offset + last_row_count:
+								axes[idx].set_visible(False)
+				merge_axes = axes[:n]
+				plt.suptitle(f"All Communities from {os.path.basename(input_path)}", fontsize=16)
+				plt.tight_layout(pad=3)
+				#fig.tight_layout()
+				#fig.subplots_adjust(wspace=0.3, hspace=0.4)
 
-		for comm in comm_dict:
-			if args.community == -1:
-				suptitle = "Entire Graph (n="+str(len(comm_dict[comm]))+")"
-				output_file = f'{os.path.splitext(args.input_file)[0]}-urgell_plot_zoomed.png'
-				make_urgellplot_zoomed(comm_dict[comm], suptitle=suptitle, filename=output_file, region=args.zoom, cax=None)
-				print(f"Saved entire graph plot to {output_file}")
-			elif args.community == comm or args.community == -2:
-				suptitle = "Community "+str(comm)+" (n="+str(len(comm_dict[comm]))+")"
-				if args.merge_plots:
-					output_file = f'{os.path.splitext(args.input_file)[0]}-all_communities_plot.png'
-				else:
-					output_file = f'{os.path.splitext(args.input_file)[0]}_{comm}-urgell_plot_zoomed.png'
-				make_urgellplot_zoomed(comm_dict[comm], suptitle=suptitle, filename=output_file, region=args.zoom, cax=merge_axes[comm] if merge_axes else None)
-				print(f"Saved community {comm} plot to {output_file}")
+			for idx, (comm, value) in enumerate(comm_dict.items()):
+				if args.community == -1:
+					suptitle = "Entire Graph (n="+str(len(value))+")"
+					output_file = f'{os.path.splitext(input_path)[0]}-urgell_plot_zoomed.png'
+					make_urgellplot_zoomed(value, suptitle=suptitle, filename=output_file, region=args.zoom, cax=None)
+					print(f"Saved entire graph plot to {output_file}")
+				elif args.community == comm or args.community == -2:
+					print("Plotting Community " + str(comm) + " (n=" + str(len(value)) + ")")
+					suptitle = "Community "+str(comm)+" (n="+str(len(value))+")"
+					if args.merge_plots:
+						output_file = f'{os.path.splitext(input_path)[0]}-all_communities_plot.png'
+					else:
+						output_file = f'{os.path.splitext(input_path)[0]}_{comm}-urgell_plot_zoomed.png'
+					make_urgellplot_zoomed(value, suptitle=suptitle, filename=output_file, region=args.zoom, cax=merge_axes[idx] if len(merge_axes) else None)
+					print(f"Saved community {comm} plot to {output_file}")
 
 

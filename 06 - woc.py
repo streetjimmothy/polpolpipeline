@@ -24,6 +24,8 @@ import logging
 import sys
 spinner = ['|', '/', '-', '\\']
 
+import utilities as util
+
 
 class Crowd:
 	"""
@@ -695,25 +697,29 @@ def wisdom_of_crowds(nx_graph, community=None, plot=False, crowd=None, filename=
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="Runs wisdom of the crowds. (Note: does not use the module, but had it defined inline because of issues with the current module version and Python 3.12+). \n\n Saves output to csv and optionally to a sullivan plot")
-	parser.add_argument("-i", "--input_file", required=True, help="Path to the input graphml file.")
-	parser.add_argument("-o", "--output_file", required=False, help="Path to save the results (default: saves to input file + '_woc.csv').")
+	util.create_input_args(parser, ext=".grahpml")
+	util.create_output_args(parser, suffix="_woc.csv")	#TODO: This isn't actually used properly yet
 	parser.add_argument("-c", "--communities", type=int, default=-1, help="Number of communites to consider (default: -1, which means each community). If set to n, will run the analysis for the top n communities. 0 means the full graph.")
 	parser.add_argument("--plot", action='store_true', help="Generate sullivan plot (default: False).")
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
 
 	args = parser.parse_args()
 
-	graph=nx.read_graphml(args.input_file)
+	input_files = util.parse_input_files_arg(args.input_file, ext=".graphml")
+	output_files = util.parse_output_files_arg(args.output, input_files)
 
-	if args.communities == 0:
-		wisdom_of_crowds(graph, plot=args.plot, filename=f"{os.path.splitext(args.input_file)[0]}", verbose=args.verbose)  # full graph
-	
-	elif args.communities > 0:
-		for i in range(args.communities):
-			wisdom_of_crowds(graph, i, plot=args.plot, verbose=args.verbose)
-	else:
-		# if communities is -1, we run the analysis for each community
-		communities = set(nx.get_node_attributes(graph, 'T').values())
-		for community in communities:
-			wisdom_of_crowds(graph, int(community), plot=args.plot, filename=f"{os.path.splitext(args.input_file)[0]}", verbose=args.verbose)
+	for input_file, output_file in zip(input_files, output_files):
+		graph=nx.read_graphml(input_file)
+
+		if args.communities == 0:
+			wisdom_of_crowds(graph, plot=args.plot, filename=f"{os.path.splitext(input_file)[0]}", verbose=args.verbose)  # full graph
+		
+		elif args.communities > 0:
+			for i in range(args.communities):
+				wisdom_of_crowds(graph, i, plot=args.plot, verbose=args.verbose)
+		else:
+			# if communities is -1, we run the analysis for each community
+			communities = set(nx.get_node_attributes(graph, 'T').values())
+			for community in communities:
+				wisdom_of_crowds(graph, int(community), plot=args.plot, filename=f"{os.path.splitext(input_file)[0]}", verbose=args.verbose)
 

@@ -4,6 +4,7 @@ import psutil
 import json
 import os
 import argparse
+import utilities as util
 
 #import modules used for network analysis
 import networkx as nx
@@ -139,8 +140,8 @@ def prune_graph(graph, min_connections=2, min_weight=1, max_iterations=-1, conne
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="creates a graph from tweets in a JSON file")
-	parser.add_argument("-i", "--input_file","--input_files", "--input_dir", nargs='+', required=True, help="Path to the input JSON file containing tweets (multiple files can be specified, they will be graphed together. A directory can also be specified, in which case all JSON files in that directory will be used)")
-	parser.add_argument("-o", "--output_file", required=False, help="Path to save the graph (defaults to the input file name (the common section for multiple input files) with .graphml extension)")
+	util.create_input_args(parser, ext=".json")
+	util.create_output_args(parser, suffix="{full|{cc_type}_pruned}.graphml")
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
 	# Create a group for pruning-related arguments
 	prune_group = parser.add_argument_group('Pruning Options')
@@ -153,39 +154,27 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 
 	start_time = time.time()
-	if not args.input_file:
-		print("No input file specified")
-		exit(1)
-	if len(args.input_file) > 1:
-		print(f"Multiple input files specified: {args.input_file}")
-	else:
-		if os.path.isdir(args.input_file[0]):
-			output_file_base = args.input_file[0]
-			# If a directory is specified, get all JSON files in that directory
-			args.input_file = [os.path.join(args.input_file[0], f) for f in os.listdir(args.input_file[0]) if f.endswith('.json')]
-			if not args.input_file:
-				print(f"No JSON files found in directory: {args.input_file[0]}")
-				exit(1)
-			print(f"Input directory specified, using files: {args.input_file}")
-		else:
-			print(f"Single input file specified: {args.input_file[0]}")
 
-	if not args.output_file:
-		if len(args.input_file) > 1:
-			#TODO: Use the common section of the input files as the output filename
-			output_file_base = f"{args.input_file[0][:3]}"
-		else:
-			output_file_base = f"{os.path.splitext(args.input_file[0])[0]}"
-		print(f"Output file not specified, using default: {output_file_base}")
-	else:
-		output_file_base = os.path.splitext(args.output_file)[0]
-		print(f"Output file: {output_file_base}")
+	input_files = util.parse_input_files_arg(args.input_file, ext=".json")
+	output_files = util.parse_output_files_arg(args.output, input_files)
 
-	tweets_json = load_tweets_from_json(args.input_file)
-	nx_g = create_nx_graph(tweets_json)
-	save_nx_graph(nx_g, output_file_base+"_full.graphml")
-	nx_pruned = prune_graph(nx_g, args.min_connections, args.min_weight, args.max_iterations, args.cc_type, args.verbose)
-	save_nx_graph(nx_pruned, output_file_base+"_pruned.graphml")
+	for i, input_file in enumerate(input_files):
+		if not os.path.exists(input_file):
+			print(f"Input file does not exist: {input_file}")
+			exit(1)
+		tweets_json = load_tweets_from_json(input_file)
+		nx_g = create_nx_graph(tweets_json)
+		if isinstance(output_files, list):
+			output_file = output_files[i] + "_full.graphml"
+		else:
+			output_file = output_files
+		save_nx_graph(nx_g, output_file)
+		nx_pruned = prune_graph(nx_g, args.min_connections, args.min_weight, args.max_iterations, args.cc_type, args.verbose)
+		if isinstance(output_files, list):
+			output_file = f"{output_files[i]}_{args.cc_type}_pruned.graphml"
+		else:
+			output_file = output_files
+		save_nx_graph(nx_pruned, output_file)
 
 	elapsed_time = time.time() - start_time
 	print(f"Total time taken: {humanize.naturaldelta(elapsed_time)}")
