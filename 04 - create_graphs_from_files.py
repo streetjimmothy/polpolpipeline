@@ -171,7 +171,7 @@ if __name__ == "__main__":
 		save_nx_graph(nx_g, output_file)
 		nx_pruned = prune_graph(nx_g, args.min_connections, args.min_weight, args.max_iterations, args.cc_type, args.verbose)
 		if isinstance(output_files, list):
-			output_file = f"{output_files[i]}_{args.cc_type}_pruned.graphml"
+			output_file = f"{output_files[i]}_{args.cc_type}-pruned.graphml"
 		else:
 			output_file = output_files
 		save_nx_graph(nx_pruned, output_file)

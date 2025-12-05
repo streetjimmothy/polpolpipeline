@@ -1,5 +1,5 @@
 import re
-import sys
+import os
 import time
 import asyncio
 import random
@@ -7,6 +7,8 @@ from urllib.parse import urlparse
 import httpx 
 from tqdm.asyncio import tqdm_asyncio
 from tqdm import tqdm
+import argparse
+import utilities as util
 
 #find_module shim. (used by snscrape, deprecated in python3.13)
 import importlib.machinery as m
@@ -168,7 +170,7 @@ def _collect_unique_urls(infile_path: str) -> tuple[list[str], list[str]]:
 					tco.append(url)
 	return tco, tweet_urls
 
-async def _resolve_all_async(urls: list[str]) -> None:
+async def _resolve_all_async(urls: list[str], verbose: bool = False) -> None:
 	if not urls:
 		return
 	sem = asyncio.Semaphore(MAX_CONCURRENCY)
@@ -177,11 +179,14 @@ async def _resolve_all_async(urls: list[str]) -> None:
 		async with sem:
 			await resolve_url(u)
 
-	# Use tqdm over tasks; tqdm_asyncio.gather provides progress tracking
-	await tqdm_asyncio.gather(*(worker(u) for u in urls), total=len(urls), desc="Resolving URLs", ncols=100)
+	tasks = (worker(u) for u in urls)
+	if verbose:
+		await tqdm_asyncio.gather(*tasks, total=len(urls), desc="Resolving URLs", ncols=100)
+	else:
+		await asyncio.gather(*tasks)
 
 
-async def _resolve_tweets_async(tweet_placeholder_urls: list[str]) -> None:
+async def _resolve_tweets_async(tweet_placeholder_urls: list[str], verbose: bool = False) -> None:
 	if not tweet_placeholder_urls:
 		return
 	sem = asyncio.Semaphore(16)
@@ -191,7 +196,11 @@ async def _resolve_tweets_async(tweet_placeholder_urls: list[str]) -> None:
 		async with sem:
 			await get_tweet_info_from_id(tweet_id)
 
-	await tqdm_asyncio.gather(*(worker(u) for u in tweet_placeholder_urls), total=len(tweet_placeholder_urls), desc="Scraping Tweets", ncols=100)
+	tasks = (worker(u) for u in tweet_placeholder_urls)
+	if verbose:
+		await tqdm_asyncio.gather(*tasks, total=len(tweet_placeholder_urls), desc="Scraping Tweets", ncols=100)
+	else:
+		await asyncio.gather(*tasks)
 
 
 def _rewrite_line(line: str) -> str:
@@ -213,22 +222,23 @@ def _rewrite_line(line: str) -> str:
     return line
 
 
-async def process_file_async(infile: str, outfile: str):
+async def process_file_async(infile: str, outfile: str, verbose: bool = False):
 	# Phase 1: gather unique URLs
 	tco_urls, tweet_urls = _collect_unique_urls(infile)
 
 	# Phase 2: async resolve short URLs
-	await _resolve_all_async(tco_urls)
+	await _resolve_all_async(tco_urls, verbose=verbose)
 
 	# Phase 3: async tweet enrichment (scrape offloaded to threads)
-	await _resolve_tweets_async(tweet_urls)
+	await _resolve_tweets_async(tweet_urls, verbose=verbose)
 
 	# Phase 4: rewrite output
 	with open(infile, 'r', encoding='utf-8', errors='ignore') as fin:
 		lines = fin.readlines()
 
 	with open(outfile, 'w', encoding='utf-8', newline='') as fout:
-		for line in tqdm(lines, desc="Rewriting", ncols=100):
+		line_iter = tqdm(lines, desc="Rewriting", ncols=100) if verbose else lines
+		for line in line_iter:
 			fout.write(_rewrite_line(line))
 
 	# Graceful close of async client
@@ -236,13 +246,20 @@ async def process_file_async(infile: str, outfile: str):
 		await _async_client.aclose()
 
 
-def process_file(infile: str, outfile: str):
+def process_file(infile: str, outfile: str, *, verbose: bool = False):
 	"""Synchronous facade for CLI usage."""
-	asyncio.run(process_file_async(infile, outfile))
+	asyncio.run(process_file_async(infile, outfile, verbose=verbose))
 
 
 if __name__ == "__main__":
-	if len(sys.argv) < 3:
-		print("Usage: python resolve_URLs.py <input> <output>", file=sys.stderr)
-		sys.exit(1)
-	process_file(sys.argv[1], sys.argv[2])
+	parser = argparse.ArgumentParser(
+		description="Resolves URLs."
+	)
+	util.create_input_args(parser)
+	util.create_output_args(parser, suffix='-resolved.txt')	#TODO: not used
+	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
+
+	args = parser.parse_args()
+	input_files = util.parse_input_files_arg(args.input_file, ext=".txt")
+	for input_path in input_files:
+		process_file(input_path, f"{os.path.splitext(input_path)[0]}-resolved.txt", verbose=args.verbose)

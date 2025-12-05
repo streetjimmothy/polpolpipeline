@@ -6,6 +6,7 @@ import argparse
 import re
 import os
 from typing import Optional
+import utilities as util
 
 try:
 	# tqdm is optional; if missing we silently skip progress bars
@@ -118,30 +119,18 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(
 		description="Remove non-decodable and non-printable characters. Default: fast ASCII whitelist. Cleaned files saved to \"-cleaned.txt\" files."
 	)
-	parser.add_argument("-i", "--input_file", "--input_files", "--input_dir", nargs='+', required=True, help="Path to the input file containing text (multiple files can be specified, they will each be cleaned. A directory can also be specified, in which case all text files in that directory will be cleaned)")
+	util.create_input_args(parser)
+	util.create_output_args(parser, suffix='_{unicode|ascii}-cleaned.txt') #TODO: not used
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
 	parser.add_argument("--unicode", action="store_true", help="Use Unicode printable filtering (slower).")
 
 	args = parser.parse_args()
-	if not args.input_file:
-		print("No input file specified")
-		sys.exit(1)
-	if len(args.input_file) > 1:
-		print(f"Multiple input files specified: {args.input_file}")
-	else:
-		if os.path.isdir(args.input_file[0]):
-			# If a directory is specified, get all text files in that directory
-			args.input_file = [os.path.join(args.input_file[0], f) for f in os.listdir(
-				args.input_file[0]) if f.endswith('.txt')]
-			if not args.input_file:
-				print(f"No text files found")
-				sys.exit(1)
-			print(f"Input directory specified, using files: {args.input_file}")
-		else:
-			print(f"Single input file specified: {args.input_file[0]}")
+	input_files=util.parse_input_files_arg(args.input_file, ext=".txt")
+
+	file_type = 'ascii' if not args.unicode else 'unicode'
 	try:
-		for input_path in args.input_file:
-			process_file(Path(input_path), Path(f"{os.path.splitext(input_path)[0]}-cleaned.txt"), args.unicode, verbose=args.verbose)
+		for input_path in input_files:
+			process_file(Path(input_path), Path(f"{os.path.splitext(input_path)[0]}_{file_type}-cleaned.txt"), args.unicode, verbose=args.verbose)
 	except Exception as e:
 		print(f"Processing failed: {e}", file=sys.stderr)
 		sys.exit(2)
