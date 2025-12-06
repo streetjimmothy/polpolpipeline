@@ -24,30 +24,14 @@ def fit_lda(
 	n_topics: int, 
 	max_iter: int
 ) -> LatentDirichletAllocation:
-	print(f"Fitting LDA with {n_topics} topics, max {max_iter} iterations...")
-	with tqdm(total=max_iter, desc="LDA training", unit="iteration") as pbar:
-		class ProgressCallback:
-			def __init__(self, pbar):
-				self.pbar = pbar
-				self.prev_iter = 0
-			
-			def __call__(self, model):
-				# Update progress based on current iteration
-				current_iter = model.n_iter_
-				if current_iter > self.prev_iter:
-					self.pbar.update(current_iter - self.prev_iter)
-					self.prev_iter = current_iter
-		
-		callback = ProgressCallback(pbar)
-		lda = LatentDirichletAllocation(
-			n_components=n_topics,
-			max_iter=max_iter,
-			learning_method="batch",	#TODO: Consider online? might be faster for large corpora
-			evaluate_every=1,
-			verbose=0,
-		)
-		lda.fit(matrix)
-		pbar.update(max_iter - pbar.n)  # Ensure full progress bar
+	lda = LatentDirichletAllocation(
+		n_components=n_topics,
+		max_iter=max_iter,
+		learning_method="batch",	#TODO: Consider online? might be faster for large corpora
+		evaluate_every=0,
+		verbose=1,
+	)
+	lda.fit(matrix)
 	return lda
 
 
