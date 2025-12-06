@@ -18,6 +18,7 @@ from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 from pathlib import Path
 import utilities as util
 
+#TODO: Move to Step 07a - clean_text.py or 07d - denoise.py
 def preprocess_tweet(text):
 	# Remove URLs
 	text = re.sub(r'http\S+|www\S+|https\S+', '', text, flags=re.MULTILINE)
@@ -64,7 +65,13 @@ def preprocess(documents):
 	return documents_filtered
 
 
-def run_bertopic(documents_filtered, min_cluster_size=0, custom_stopwords=None):
+def run_bertopic(
+	documents_filtered, 
+	min_cluster_size=0, 
+	custom_stopwords=None,
+	min_df=5,
+	max_df=0.7
+):
 	# ===== BERTopic Modeling =====
 	print("Running BERTopic with batched embeddings...")
 
@@ -73,7 +80,13 @@ def run_bertopic(documents_filtered, min_cluster_size=0, custom_stopwords=None):
 	embedder = SentenceTransformer('all-MiniLM-L6-v2', device='cuda')
 
 	# Getting rid of stopwords
-	vectorizer_model = CountVectorizer(stop_words=custom_stopwords if custom_stopwords else 'english', lowercase=True, ngram_range=(1, 2))
+	vectorizer_model = CountVectorizer(
+		stop_words=custom_stopwords if custom_stopwords else 'english', 
+		lowercase=True, 
+		ngram_range=(1, 2),
+		min_df=min_df,
+		max_df=max_df
+	)
 	ctfidf_model = ClassTfidfTransformer(reduce_frequent_words=True)
 
 	# diversify words in each topic such that we limit the number of duplicate words we find in each topic.
@@ -176,7 +189,14 @@ def load_stopwords(custom_path: Path | None):
 					stopwords.add(token)
 	return sorted(stopwords)
 
-def process_file(input_file, output_file_base, stopwords, verbose = True):
+def process_file(
+	input_file, 
+	output_file_base, 
+	stopwords, 
+	verbose = True,
+	min_df=5,
+	max_df=0.7
+	):
 	if input_file.endswith('.csv'):
 		df, documents = load_csv(input_file, document_column=document_column)
 	else:
@@ -185,7 +205,13 @@ def process_file(input_file, output_file_base, stopwords, verbose = True):
 		# create dataframe
 		df = pd.DataFrame({document_column: documents})
 	documents_filtered = preprocess(documents)
-	topic_model, topics, embeddings = run_bertopic(documents_filtered, min_cluster_size=args.min_cluster_size, custom_stopwords=custom_stopwords if args.stop_words else None)
+	topic_model, topics, embeddings = run_bertopic(
+		documents_filtered, 
+		min_cluster_size=args.min_cluster_size, 
+		custom_stopwords=custom_stopwords if args.stop_words else None,
+		min_df=min_df,
+		max_df=max_df
+	)
 	cull_topics(topic_model, documents_filtered, TARGET_MAX=args.max_topics)
 
 	save(df, topic_model, topics, output_file_base)
@@ -193,8 +219,6 @@ def process_file(input_file, output_file_base, stopwords, verbose = True):
 
 
 if __name__ == "__main__":
-	# TODO: This should take a csv apparently
-	# TODOTODO: MAke it take either a csv or text files
 	parser = argparse.ArgumentParser(description="BERTopic Modeling on Tweets")
 	util.create_input_args(parser)
 	util.create_output_args(parser, suffix='{.csv|.png|.html}', help="Directory to save output plots and CSVs")
@@ -202,6 +226,8 @@ if __name__ == "__main__":
 	parser.add_argument("--max_topics", type=int, default=50, help="Maximum number of topics to reduce to (default: 50)")
 	parser.add_argument("--min_cluster_size", type=int, default=150, help="Minimum cluster size for HDBSCAN (optional, helps control number of topics)")
 	parser.add_argument("--stop_words", required=False, help="Custom stopwords list to use")
+	parser.add_argument("--min-df", type=int, default=5, help="Minimum document frequency for CountVectorizer (default: 5)")
+	parser.add_argument("--max-df", type=float, default=0.7, help="Maximum document frequency ratio (default: 0.7)")
 
 	args = parser.parse_args()
 
@@ -220,5 +246,7 @@ if __name__ == "__main__":
 			input_file,
 			output_file,
 			stopwords=custom_stopwords if args.stop_words else None,
-			verbose=True
+			verbose=True,
+			min_df=args.min_df,
+			max_df=args.max_df
 		)
