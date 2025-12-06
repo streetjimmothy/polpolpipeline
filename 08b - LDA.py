@@ -8,7 +8,7 @@ from typing import Iterable, List, Sequence
 import cupy as cp
 import matplotlib.pyplot as plt
 import numpy as np
-from cuml.decomposition import LatentDirichletAllocation
+from sklearn.decomposition import LatentDirichletAllocation
 
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import pdist
@@ -20,7 +20,7 @@ import utilities as util
 
 
 def fit_lda(
-	matrix: cp.ndarray, 
+	matrix, 
 	n_topics: int, 
 	max_iter: int
 ) -> LatentDirichletAllocation:
@@ -30,8 +30,9 @@ def fit_lda(
 		learning_method="batch",	#TODO: Consider online? might be faster for large corpora
 		evaluate_every=0,
 		verbose=1,
+		n_jobs=-1,
 	)
-	lda.fit(matrix)
+	lda.fit_transform(matrix)
 	return lda
 
 
@@ -49,7 +50,8 @@ def plot_dendrogram(topic_word_matrix: np.ndarray, output_dir: Path) -> Path:
 	dendrogram(linkage_matrix, labels=labels, ax=ax)
 	ax.set_title("Topic Similarity Dendrogram")
 	ax.set_ylabel("Cosine distance")
-	output_path = output_dir / "lda_dendrogram.png"
+	output_path = Path(output_dir + "lda_dendrogram.png")
+	output_path.parent.mkdir(parents=True, exist_ok=True)
 	fig.tight_layout()
 	fig.savefig(output_path, dpi=200)
 	plt.close(fig)
@@ -66,7 +68,8 @@ def plot_cluster(topic_word_matrix: np.ndarray, output_dir: Path) -> Path:
 	ax.set_title("Topic Clusters (PCA)")
 	ax.set_xlabel("PC 1")
 	ax.set_ylabel("PC 2")
-	output_path = output_dir / "lda_cluster_plot.png"
+	output_path = Path(output_dir + "lda_cluster_plot.png")
+	output_path.parent.mkdir(parents=True, exist_ok=True)
 	fig.tight_layout()
 	fig.savefig(output_path, dpi=200)
 	plt.close(fig)
@@ -100,7 +103,8 @@ def plot_top_words(
 		axes[row][col].set_visible(False)
 
 	fig.tight_layout()
-	output_path = output_dir / "lda_top_words.png"
+	output_path = Path(output_dir + "lda_top_words.png")
+	output_path.parent.mkdir(parents=True, exist_ok=True)
 	fig.savefig(output_path, dpi=200)
 	plt.close(fig)
 	return output_path
@@ -112,7 +116,7 @@ def run(
 	term_freq_matrix=None,
 	vectoriser=None,
 	num_topics=50,
-	max_iterations=1000,
+	max_iterations=100,
 	verbose=True,
 ):
 	if len(documents) < num_topics:
@@ -125,7 +129,7 @@ def run(
 	)
 
 	# Convert GPU arrays to CPU for plotting
-	topic_word = cp.asnumpy(lda_model.components_)
+	topic_word = lda_model.components_
 	feature_names = get_feature_names(vectoriser)
 
 	dendro_path = plot_dendrogram(topic_word, output_file_base)

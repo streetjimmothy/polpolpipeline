@@ -8,13 +8,13 @@ import csv
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 
 
-try:
-	from cuml.feature_extraction.text import CountVectorizer
-	import cudf
-	import cupy as cp
-except ImportError:
-	print("Could not load cuML CountVectorizer for GPU. Falling back to scikit-learn version for CPU.")
-	from sklearn.feature_extraction.text import CountVectorizer
+# try:
+# 	from cuml.feature_extraction.text import CountVectorizer
+# 	import cudf
+# 	import cupy as cp
+# except ImportError:
+print("Could not load cuML CountVectorizer for GPU. Falling back to scikit-learn version for CPU.")
+from sklearn.feature_extraction.text import CountVectorizer
 
 def _load_module(path: Path, module_name: str):
 	"""Dynamically load a module from an arbitrary path (supports filenames with spaces)."""
@@ -139,7 +139,7 @@ def train_vectoriser(
 
 
 def load_stopwords(custom_path: Path | None):
-	stopwords = set(ENGLISH_STOP_WORDS)
+	stopwords = list(ENGLISH_STOP_WORDS)
 	if custom_path:
 		if not custom_path.is_file():
 			raise FileNotFoundError(f"Custom stopword file not found: {custom_path}")
@@ -147,7 +147,7 @@ def load_stopwords(custom_path: Path | None):
 			for line in f:
 				token = line.strip().lower()
 				if token:
-					stopwords.add(token)
+					stopwords.append(token)
 	return sorted(stopwords)
 
 def main():
@@ -165,11 +165,11 @@ def main():
 	input_files = util.parse_input_files_arg(args.input_file, ext="-denoised.txt")
 	output_files = util.parse_output_files_arg(args.output, input_files)
 
-	stopwords = set(ENGLISH_STOP_WORDS)
+	stopwords = ENGLISH_STOP_WORDS
 	if (args.stop_words):
 		print(f"Using custom stopwords from: {args.stop_words}")
-		custom_stopwords = load_stopwords(Path(args.stop_words))
-		print(f"Loaded {len(custom_stopwords)} custom stopwords")
+		stopwords = load_stopwords(Path(args.stop_words))
+		print(f"Loaded {len(stopwords)} custom stopwords")
 	
 	vectoriser = CountVectorizer(
 				stop_words=stopwords,
@@ -187,7 +187,7 @@ def main():
 			},
 		"08b - LDA.py" : {
 			"num_topics": args.max_topics,
-			"max_iterations": 1000
+			"max_iterations": 100
 		},
 		# "08c - LDA_then_BERTopic.py" : {},
 		# "08d - LDA_powered_BERTopic.py" : {},
@@ -202,11 +202,14 @@ def main():
 		print(f"Generating term-frequency matrices with CountVectorizer ...")
 		term_freq_matrix = train_vectoriser(documents, vectoriser)
 		for script, _args in scripts.items():
-			module = _load_module(Path(script), script.split(" ")[-1].replace(".py", "_mod"))
+			module = _load_module(
+				Path(script), 
+				script.split(" ")[-1].replace(".py", "")
+			)
 			func = getattr(module, 'run')
 			func_args = _args | {
 				"documents": documents,
-				"output_file_base": output_file,
+				"output_file_base": output_file +"/"+ module.__name__+"/",
 				"verbose": args.verbose,
 				"term_freq_matrix": term_freq_matrix,
 				"vectoriser": vectoriser,

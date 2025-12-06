@@ -12,7 +12,7 @@ from cuml.cluster import HDBSCAN
 from bertopic.vectorizers import ClassTfidfTransformer
 from bertopic.representation import MaximalMarginalRelevance
 import pandas as pd
-
+from pathlib import Path
 
 def run_bertopic( 
 	documents,
@@ -89,7 +89,9 @@ def cull_topics(topic_model, documents, TARGET_MAX=50):
 def save(documents, topic_model, topics, output_file_base="tweets_with_topics"):
 	# Add topic assignments back to your dataframe
 	print("Saving documents topic assignments...")
-	with open(f"{output_file_base}_topic-mappings.csv", "w", encoding="utf-8") as f:
+	output_path = Path(f"{output_file_base}_with_topics.csv")
+	output_path.parent.mkdir(parents=True, exist_ok=True)
+	with open(output_path, "w", encoding="utf-8") as f:
 		f.write("document_index,document, topic\n")
 		for i, topic in tqdm(enumerate(topics), total=len(topics), desc="Saving topic assignments"):
 			f.write(f"{i},{documents[i]},{topic}\n")
