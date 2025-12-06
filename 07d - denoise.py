@@ -65,7 +65,7 @@ def process_file(input_path: Path, output_path: Path, verbose: bool = False, chu
 
 	with open(input_path, 'rb') as infile, open(output_path, 'wb') as outfile:
 		if verbose:
-			pbar = tqdm(total=total_bytes, unit='B', unit_scale=True, desc=f"Cleaning {input_path.name}", ncols=100)
+			pbar = tqdm(total=total_bytes, unit='B', unit_scale=True, desc=f"Denoising {input_path.name}", ncols=100)
 		else:
 			pbar = None
 		while True:
@@ -83,7 +83,7 @@ def process_file(input_path: Path, output_path: Path, verbose: bool = False, chu
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(
-		description="Remove non-decodable and non-printable characters. Default: fast ASCII whitelist. Cleaned files saved to \"-cleaned.txt\" files."
+		description="Denoises."
 	)
 	util.create_input_args(parser)
 	util.create_output_args(parser, suffix='-denoised.csv')  # TODO: not used

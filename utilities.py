@@ -33,18 +33,18 @@ def parse_input_files_arg(input_files: list[str] | str, ext: str | None =None) -
 	else:
 		if os.path.isdir(input_files[0]):
 			# If a directory is specified, get all JSON files in that directory
-			input_files = []
+			_input_files = []
 			for f in os.listdir(input_files[0]):
 				if ext is None or f.lower().endswith(ext.lower()):
-					input_files.append(os.path.join(input_files[0], f))
-			if not input_files:
+					_input_files.append(os.path.join(input_files[0], f))
+			if not _input_files:
 				if ext:
 					print(f"No {ext} files found in directory: {input_files[0]}")
 				else:
 					print(f"No files found in directory: {input_files[0]}")
 				return []
-			print(f"Input directory specified, using files: {input_files}")
-			return input_files
+			print(f"Input directory specified, using files: {_input_files}")
+			return _input_files
 		else:
 			print(f"Single input file specified: {input_files[0]}")
 			return [input_files[0]]

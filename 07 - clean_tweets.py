@@ -59,12 +59,12 @@ def process_files(filename: Path, domain_csv: Path, unicode_mode: bool, verbose:
 	if verbose:
 		print(f"[3/3] Denoising: {resolved_file} -> {denoised_file}")
 	# denoise.process_file(in_file, out_file, show_progress=verbose)
-	rate_func(str(resolved_file), str(domain_csv), str(denoised_file), show_progress=verbose)
+	denoise_func(str(resolved_file), str(domain_csv), str(denoised_file), show_progress=verbose)
 
-	if verbose:
-		print(f"[4/3] Rating URLs: {resolved_file} -> {rated_file}")
-	# rate_URLs.process_file(in_file, domain_csv, out_file, show_progress=verbose)
-	denoise_func(str(resolved_file), str(domain_csv), str(rated_file), show_progress=verbose)
+	# if verbose:
+	# 	print(f"[4/3] Rating URLs: {resolved_file} -> {rated_file}")
+	# # rate_URLs.process_file(in_file, domain_csv, out_file, show_progress=verbose)
+	# rate_func(str(resolved_file), str(domain_csv), str(rated_file), show_progress=verbose)
 
 	if verbose:
 		print(f"Completed: {infile}\n")
