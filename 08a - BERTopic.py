@@ -87,7 +87,7 @@ def run_bertopic(documents_filtered, min_cluster_size=0, custom_stopwords=None):
 		prediction_data=False
 	)
 
-	umap_model = UMAP(n_neighbors=15, n_components=5, metric='euclidean', low_memory=True)
+	umap_model = UMAP(n_neighbors=15, n_components=5, metric='euclidean')
 
 	topic_model = BERTopic(
 		embedding_model=None,  # We'll pass precomputed embeddings
@@ -176,7 +176,7 @@ def load_stopwords(custom_path: Path | None):
 					stopwords.add(token)
 	return sorted(stopwords)
 
-def process_file(input_file, output_dir, stopwords, verbose = True):
+def process_file(input_file, output_file_base, stopwords, verbose = True):
 	if input_file.endswith('.csv'):
 		df, documents = load_csv(input_file, document_column=document_column)
 	else:
@@ -188,8 +188,8 @@ def process_file(input_file, output_dir, stopwords, verbose = True):
 	topic_model, topics, embeddings = run_bertopic(documents_filtered, min_cluster_size=args.min_cluster_size, custom_stopwords=custom_stopwords if args.stop_words else None)
 	cull_topics(topic_model, documents_filtered, TARGET_MAX=args.max_topics)
 
-	save(df, topic_model, topics, output_file_base=output_dir)
-	plot(topic_model, topics, embeddings, output_file_base=output_dir)
+	save(df, topic_model, topics, output_file_base)
+	plot(topic_model, topics, embeddings, output_file_base)
 
 
 if __name__ == "__main__":
@@ -215,10 +215,10 @@ if __name__ == "__main__":
 
 	document_column = args.document_column
 
-	for input_file in args.input_file:
+	for input_file, output_file in zip(input_files, output_files):
 		process_file(
 			input_file,
-			output_dir=args.output,
+			output_file,
 			stopwords=custom_stopwords if args.stop_words else None,
 			verbose=True
 		)
