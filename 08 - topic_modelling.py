@@ -181,12 +181,14 @@ def main():
 			)
 
 	scripts = {
-		"08a - BERTopic.py" : 
-			{
+		"08a - BERTopic.py" : {
 				"min_cluster_size": 150,
-				"vectoriser": vectoriser
+				"max_topics": args.max_topics
 			},
-		# "08b - LDA.py" : {},
+		"08b - LDA.py" : {
+			"num_topics": args.max_topics,
+			"max_iterations": 1000
+		},
 		# "08c - LDA_then_BERTopic.py" : {},
 		# "08d - LDA_powered_BERTopic.py" : {},
 		# "08e - BERTopic_then_LDA.py": {},
@@ -207,7 +209,7 @@ def main():
 				"output_file_base": output_file,
 				"verbose": args.verbose,
 				"term_freq_matrix": term_freq_matrix,
-				"max_topics": args.max_topics
+				"vectoriser": vectoriser,
 			}
 			print(f"Running {script} with args: {func_args.keys()}")
 			func(**func_args)

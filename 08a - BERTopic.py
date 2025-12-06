@@ -126,11 +126,11 @@ def plot(topic_model, topics, output_file_base="tweets_with_topics"):
 def run(
 	documents,
 	output_file_base, 
-	verbose = True,
 	term_freq_matrix=None,
+	vectoriser=None,
 	min_cluster_size=0,
 	max_topics=50,
-	vectoriser=None,
+	verbose = True,
 ):
 	
 	topic_model, topics, embeddings = run_bertopic(
