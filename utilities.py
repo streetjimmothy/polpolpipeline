@@ -27,6 +27,8 @@ def parse_input_files_arg(input_files: list[str] | str, ext: str | None =None) -
 	if isinstance(input_files, str):
 		input_files = [input_files]
 	
+	input_files = [os.path.expanduser(f) if '~' in f else f for f in input_files]
+	
 	if len(input_files) > 1:
 		print(f"Multiple input files specified: {input_files}")
 		return input_files
@@ -57,6 +59,9 @@ def parse_output_files_arg(output: str | None, input_files: list[str]) -> list[s
 			output_files.append(os.path.splitext(input_file)[0])
 		return output_files
 	
+	if '~' in output:
+		output = os.path.expanduser(output)
+
 	if os.path.isdir(output):
 		print(f"Output directory specified: {output}")
 		output_files = []

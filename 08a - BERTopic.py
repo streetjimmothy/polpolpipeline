@@ -11,12 +11,14 @@ from cuml.manifold import UMAP
 from cuml.cluster import HDBSCAN
 from bertopic.vectorizers import ClassTfidfTransformer
 from bertopic.representation import MaximalMarginalRelevance
+import pandas as pd
 
 
-def run_bertopic(
-	documents_filtered, 
+def run_bertopic( 
+	documents,
+	term_freq_matrix=None,
+	vectoriser=None,
 	min_cluster_size=0, 
-	vectorized_documents=None,
 	verbose=True,
 ):
 	# ===== BERTopic Modeling =====
@@ -33,7 +35,7 @@ def run_bertopic(
 
 	# Use HDBSCAN with a minimum cluster size to control number of topics
 	hdbscan_model = HDBSCAN(
-		min_cluster_size=min_cluster_size,
+		min_cluster_size=int(min_cluster_size),
 		metric='euclidean',
 		cluster_selection_method='eom',
 		prediction_data=False
@@ -48,35 +50,36 @@ def run_bertopic(
 		calculate_probabilities=False,
 		hdbscan_model=hdbscan_model,
 		ctfidf_model=ctfidf_model,
-		representation_model=representation_model
+		representation_model=representation_model,
+		vectorizer_model=None 
 	)
 
 	# Compute embeddings in batches
 	print(f"Computing embeddings in batches of {batch_size}...")
 	embeddings = []
-	for i in tqdm(range(0, len(documents_filtered), batch_size), desc="Embedding batches"):
-		batch = documents_filtered[i:i + batch_size]
+	for i in tqdm(range(0, len(documents), batch_size), desc="Embedding batches"):
+		batch = documents[i:i + batch_size]
 		batch_emb = embedder.encode(batch, show_progress_bar=False, convert_to_numpy=True)
 		embeddings.append(batch_emb)
 	embeddings = np.vstack(embeddings)
 
 	print("Fitting BERTopic with precomputed embeddings...")
 	topics, _ = topic_model.fit_transform(
-		documents_filtered, 
-		embeddings, 
-		vectorized_documents=vectorized_documents
+		pd.Series(documents), 
+		embeddings
 	)
+	
 	initial_count = len(set([t for t in topics if t != -1]))
 	print(f"Initial non-outlier topic count: {initial_count}")
 
 	return topic_model, topics, embeddings
 
 
-def cull_topics(topic_model, documents_filtered, TARGET_MAX=50):
+def cull_topics(topic_model, documents, TARGET_MAX=50):
 	# ---- Reduce to at most 50 topics ----
 
 	print(f"Reducing topics to {TARGET_MAX}...")
-	topic_model.reduce_topics(documents_filtered, nr_topics=TARGET_MAX)
+	topic_model.reduce_topics(documents, nr_topics=TARGET_MAX) #TODO: Try use_ctfidf=True
 
 	final_count = len(set([t for t in topic_model.topics_ if t != -1]))
 	print(f"Final non-outlier topic count: {final_count}")
@@ -121,26 +124,30 @@ def plot(topic_model, topics, output_file_base="tweets_with_topics"):
 
 
 def run(
+	documents,
 	output_file_base, 
 	verbose = True,
-	vectorised_documents=None,
+	term_freq_matrix=None,
 	min_cluster_size=0,
 	max_topics=50,
-	):
+	vectoriser=None,
+):
 	
 	topic_model, topics, embeddings = run_bertopic(
-		vectorised_documents=vectorised_documents,
+		documents,
+		term_freq_matrix=term_freq_matrix,
+		vectoriser=vectoriser,
 		min_cluster_size=min_cluster_size,
 		verbose=verbose,
 	)
 	cull_topics(
 		topic_model, 
-		vectorised_documents, 
+		documents, 
 		TARGET_MAX=max_topics
 	)
 
-	save(vectorised_documents, topic_model, topics, output_file_base)
-	plot(topic_model, topics, embeddings, output_file_base)
+	save(documents, topic_model, topics, output_file_base)
+	plot(topic_model, topics, output_file_base)
 
 
 if __name__ == "__main__":

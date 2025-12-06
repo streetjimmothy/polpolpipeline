@@ -3,12 +3,15 @@ import argparse
 import utilities as util
 import importlib.util
 from pathlib import Path
-import tqdm
+from tqdm import tqdm
 import csv
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 
+
 try:
 	from cuml.feature_extraction.text import CountVectorizer
+	import cudf
+	import cupy as cp
 except ImportError:
 	print("Could not load cuML CountVectorizer for GPU. Falling back to scikit-learn version for CPU.")
 	from sklearn.feature_extraction.text import CountVectorizer
@@ -77,13 +80,12 @@ def process_files(filename: Path, domain_csv: Path, unicode_mode: bool, verbose:
 
 
 def load_documents(path: str, document_column: str = 'tweet_text'):
-	if not os.path.isfile(path):
+	if not os.path.isfile(path) and not os.path.isdir(path):
 		raise FileNotFoundError(f"Input file not found: {path}")
 
 	documents = []
 	if str(path).endswith('.csv'):
 		print("Loading CSV ...")
-		documents = []
 		with open(path, 'r', encoding='utf-8', errors='ignore', newline='') as f:
 			reader = csv.DictReader(f)
 			for row in tqdm(reader, desc=f"Extracting {document_column}", unit="row"):
@@ -92,7 +94,7 @@ def load_documents(path: str, document_column: str = 'tweet_text'):
 					documents.append(text)
 	else:
 		with open(path, 'r', encoding='utf-8') as f:
-			for line in tqdm(f, desc=f"Loading {path.name}", unit="line"):
+			for line in tqdm(f, desc=f"Loading {path}", unit="line"):
 				doc = line.strip()
 				if doc:
 					documents.append(doc)
@@ -104,21 +106,36 @@ def train_vectoriser(
 	docs,
 	vectoriser
 ):
-	def doc_generator():
-		if not docs:
-			return
-		progress = tqdm(
-			total=len(docs),
-			desc="Vectorizing documents",
-			unit="doc",
-			leave=False,
-		)
-		for doc in docs:
-			progress.update(1)
-			yield doc
-		progress.close()
+	if vectoriser.__module__.startswith("cuml"):
+		batch_size = 128
+		max_batch = len(docs)
+		best_batch_size = batch_size
+		while batch_size <= max_batch:
+			try:
+				print(f"Trying batch size: {batch_size}")
+				vectoriser.fit(cudf.Series(docs[:batch_size]))
+				best_batch_size = batch_size
+				batch_size = batch_size * 2  # Increase batch size
+			except (MemoryError, RuntimeError) as e:
+				print(f"Memory error at batch size {batch_size}: {e}")
+				break
+		print(f"Max successful batch size: {best_batch_size}")
+		vectoriser.fit(cudf.Series(docs[:best_batch_size]))
 
-	return vectoriser.fit_transform(doc_generator())
+		n_docs = len(docs)
+		results = []
+		for i in tqdm(range(0, n_docs, best_batch_size), desc="Transforming batches"):
+			batch = cudf.Series(docs[i:i+best_batch_size])
+			X_batch = vectoriser.transform(batch)
+			results.append(X_batch)
+		# Concatenate results along axis 0
+		if hasattr(cp, 'sparse') and isinstance(results[0], cp.sparse.csr_matrix):
+			combined = cp.sparse.vstack(results)
+		else:
+			combined = results[0].__class__.concat(results, axis=0)
+		return combined
+	else:
+		return vectoriser.fit_transform(docs)
 
 
 def load_stopwords(custom_path: Path | None):
@@ -153,9 +170,22 @@ def main():
 		print(f"Using custom stopwords from: {args.stop_words}")
 		custom_stopwords = load_stopwords(Path(args.stop_words))
 		print(f"Loaded {len(custom_stopwords)} custom stopwords")
-		
+	
+	vectoriser = CountVectorizer(
+				stop_words=stopwords,
+				lowercase=True,
+				min_df=args.min_df,
+				max_df=args.max_df,
+				binary=False,
+				ngram_range=(1, 2),
+			)
+
 	scripts = {
-		"08a - BERTopic.py" : {"min_cluster_size": 150},
+		"08a - BERTopic.py" : 
+			{
+				"min_cluster_size": 150,
+				"vectoriser": vectoriser
+			},
 		# "08b - LDA.py" : {},
 		# "08c - LDA_then_BERTopic.py" : {},
 		# "08d - LDA_powered_BERTopic.py" : {},
@@ -168,29 +198,19 @@ def main():
 		print(f"Processing input file: {input_file}")
 		documents = load_documents(input_file)
 		print(f"Generating term-frequency matrices with CountVectorizer ...")
-		term_doc_matrix = train_vectoriser(
-			documents, 
-			CountVectorizer(
-				stop_words=stopwords,
-				lowercase=True,
-				min_df=args.min_df,
-				max_df=args.max_df,
-				binary=False,
-				ngram_range=(1, 2),
-			)
-		)
-		for script, args in scripts.items():
-			module = _load_module(Path(script), script.split(" ")[:-1].replace(".py", "_mod"))
+		term_freq_matrix = train_vectoriser(documents, vectoriser)
+		for script, _args in scripts.items():
+			module = _load_module(Path(script), script.split(" ")[-1].replace(".py", "_mod"))
 			func = getattr(module, 'run')
-			func_args = args + {
-				"input_file": input_file,
+			func_args = _args | {
+				"documents": documents,
 				"output_file_base": output_file,
 				"verbose": args.verbose,
-				"vectorised_documents": term_doc_matrix,
+				"term_freq_matrix": term_freq_matrix,
 				"max_topics": args.max_topics
 			}
-			print(f"Running {script} with args: {func_args}")
-			func(*func_args)
+			print(f"Running {script} with args: {func_args.keys()}")
+			func(**func_args)
 
 
 if __name__ == "__main__":
