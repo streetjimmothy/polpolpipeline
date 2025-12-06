@@ -1,6 +1,4 @@
 import os
-import sys
-import subprocess
 import argparse
 import utilities as util
 import importlib.util
@@ -78,8 +76,8 @@ def process_files(filename: Path, domain_csv: Path, unicode_mode: bool, verbose:
 		print(f"Completed: {infile}")
 
 
-def load_documents(path: Path, document_column: str = 'tweet_text'):
-	if not path.is_file():
+def load_documents(path: str, document_column: str = 'tweet_text'):
+	if not os.path.isfile(path):
 		raise FileNotFoundError(f"Input file not found: {path}")
 
 	documents = []
