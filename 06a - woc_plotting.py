@@ -209,10 +209,10 @@ if __name__ == "__main__":
 	
 	title = None
 
-	input_paths = util.parse_input_files_arg(args.input_file, ext=".json")
-	output_files = util.parse_output_files_arg(args.output, input_paths)
+	input_paths = util.parse_input_files_arg(args.input_file, ext=".csv")
+	output_paths = util.parse_output_files_arg(args.output, input_paths)
 
-	for input_path in input_paths:
+	for input_path, output_path in zip(input_paths, output_paths):
 		with open(input_path, 'r') as infile:
 			reader = csv.DictReader(infile)
 			# make one plot per community
@@ -296,16 +296,16 @@ if __name__ == "__main__":
 			for idx, (comm, value) in enumerate(comm_dict.items()):
 				if args.community == -1:
 					suptitle = "Entire Graph (n="+str(len(value))+")"
-					output_file = f'{os.path.splitext(input_path)[0]}-urgell_plot_zoomed.png'
+					output_file = f'{output_path}-urgell_plot_zoomed.png'
 					make_urgellplot_zoomed(value, suptitle=suptitle, filename=output_file, region=args.zoom, cax=None)
 					print(f"Saved entire graph plot to {output_file}")
 				elif args.community == comm or args.community == -2:
 					print("Plotting Community " + str(comm) + " (n=" + str(len(value)) + ")")
 					suptitle = "Community "+str(comm)+" (n="+str(len(value))+")"
 					if args.merge_plots:
-						output_file = f'{os.path.splitext(input_path)[0]}-all_communities_plot.png'
+						output_file = f'{output_path}-all_communities_plot.png'
 					else:
-						output_file = f'{os.path.splitext(input_path)[0]}_{comm}-urgell_plot_zoomed.png'
+						output_file = f'{output_path}_{comm}-urgell_plot_zoomed.png'
 					make_urgellplot_zoomed(value, suptitle=suptitle, filename=output_file, region=args.zoom, cax=merge_axes[idx] if len(merge_axes) else None)
 					print(f"Saved community {comm} plot to {output_file}")
 

@@ -68,8 +68,12 @@ def parse_output_files_arg(output: str | None, input_files: list[str]) -> list[s
 		for input_file in input_files:
 			input_filename = os.path.basename(input_file)
 			output_files.append(os.path.join(output, os.path.splitext(input_filename)[0]))
+		print(f"Output files: {output_files}")
 		return output_files
 	if len(input_files) > 1:
-		raise ValueError("When multiple input files are specified, the output must be a directory")
+		output_path = Path(output)
+		output_path.mkdir(parents=True, exist_ok=True)
+		if not os.path.isdir(output):
+			raise ValueError("When multiple input files are specified, the output must be a directory")
 
 	return output	#a single input file and a single output file - the lack of list indicates the single file case
