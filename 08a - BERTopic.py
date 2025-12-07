@@ -51,7 +51,6 @@ def run_bertopic(
 		hdbscan_model=hdbscan_model,
 		ctfidf_model=ctfidf_model,
 		representation_model=representation_model,
-		vectorizer_model=None 
 	)
 
 	# Compute embeddings in batches

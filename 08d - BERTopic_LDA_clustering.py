@@ -17,42 +17,43 @@ import plotly.express as px
 import pandas as pd
 
 class Autoencoder:
-  """
-  Autoencoder for learning latent space representation
-  architecture simplified for only one hidden layer
-  """
+	"""
+	Autoencoder for learning latent space representation
+	architecture simplified for only one hidden layer
+	"""
 
-  def __init__(self, latent_dim=32, activation='relu', epochs=200, batch_size=128):
-    self.latent_dim = latent_dim
-    self.activation = activation
-    self.epochs = epochs
-    self.batch_size = batch_size
-    self.autoencoder = None
-    self.encoder = None
-    self.decoder = None
-    self.his = None
+	def __init__(self, latent_dim=32, activation='relu', epochs=200, batch_size=128):
+		self.latent_dim = latent_dim
+		self.activation = activation
+		self.epochs = epochs
+		self.batch_size = batch_size
+		self.autoencoder = None
+		self.encoder = None
+		self.decoder = None
+		self.his = None
 
-  def _compile(self, input_dim):
-    '''
-    compile the computational graph
-    '''
-    input_vec = keras.layers.Input(shape=(input_dim,))
-    encoded = keras.layers.Dense(self.latent_dim, activation=self.activation)(input_vec)
-    decoded = keras.layers.Dense(input_dim, activation=self.activation)(encoded)
-    self.autoencoder = keras.models.Model(input_vec, decoded)
-    self.encoder = keras.models.Model(input_vec, encoded)
-    encoded_input = keras.layers.Input(shape=(self.latent_dim,))
-    decoded_layer = self.autoencoder.layers[-1]
-    self.decoder = keras.models.Model(encoded_input, self.autoencoder.layers[-1](encoded_input))
-    self.autoencoder.compile(optimizer='adam', loss=keras.losses.mean_absolute_error)
+	def _compile(self, input_dim):
+		'''
+		compile the computational graph
+		'''
+		input_vec = keras.layers.Input(shape=(input_dim,))
+		encoded = keras.layers.Dense(self.latent_dim, activation=self.activation)(input_vec)
+		decoded = keras.layers.Dense(input_dim, activation=self.activation)(encoded)
+		self.autoencoder = keras.models.Model(input_vec, decoded)
+		self.encoder = keras.models.Model(input_vec, encoded)
+		encoded_input = keras.layers.Input(shape=(self.latent_dim,))
+		decoded_layer = self.autoencoder.layers[-1]
+		self.decoder = keras.models.Model(encoded_input, self.autoencoder.layers[-1](encoded_input))
+		self.autoencoder.compile(optimizer='adam', loss=keras.losses.mean_absolute_error)
 
-    def fit(self, X):
-      if not self.autoencoder:
-        self._compile(X.shape[1])
-      X_train, X_test = train_test_split(X)
-      self.his = self.autoencoder.fit(X_train, X_train, epochs=200, batch_size=128, shuffle=True, validation_data=(X_test, X_test), verbose=0)
+	def fit(self, X):
+		if not self.autoencoder:
+			self._compile(X.shape[1])
+		X_train, X_test = train_test_split(X)
+		self.his = self.autoencoder.fit(X_train, X_train, epochs=200, batch_size=92, shuffle=True, validation_data=(X_test, X_test), verbose=0)
 
 def lda_topic_assignments(matrix, n_topics, max_iter=100):
+	print("Fitting LDA model...")
 	lda = LatentDirichletAllocation(
 		n_components=n_topics,
 		max_iter=max_iter,
@@ -61,7 +62,7 @@ def lda_topic_assignments(matrix, n_topics, max_iter=100):
 		verbose=1,
 		n_jobs=-1,
 	)
-	lda_topics = lda.fit_transform(matrix)
+	lda_topics = lda.fit_transform(matrix, )
 	topic_assignments = np.argmax(lda_topics, axis=1)
 	return topic_assignments, lda
 
@@ -197,7 +198,6 @@ def plot(
 	output_path.parent.mkdir(parents=True, exist_ok=True)
 	fig.update_traces(marker=dict(size=5, opacity=0.7))
 	fig.write_html("topic_structure_viz.html")
-	fig.savefig(output_path, dpi=200)
 
 	# Get top words for each topic from BERTopic
 	topic_info = BERT_model.get_topic_info()
