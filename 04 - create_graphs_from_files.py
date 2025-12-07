@@ -29,7 +29,7 @@ def load_tweets_from_json(file_paths):
 				continue
 	return filtered_tweets
 
-def create_nx_graph(tweets_json):
+def create_nx_graph(tweets_json, connections_to_keep=["retweet", "reply", "quote"]):
 	"""
 	Create a NetworkX graph from the tweets.
 	"""
@@ -44,7 +44,7 @@ def create_nx_graph(tweets_json):
 		if tweet["connected_user"] not in nx_g:
 			nx_g.add_node(tweet["connected_user"])
 		
-		if tweet["connected_user"] != tweet["user_id"]:
+		if tweet["connected_user"] != tweet["user_id"] and tweet["connection_type"] in connections_to_keep:
 			if tweet["connected_user"] not in nx_g[tweet["user_id"]]:
 				nx_g.add_edge(tweet["user_id"], tweet["connected_user"], weight=1, tweets=[tweet["tweet_id"]])
 			else:
@@ -143,6 +143,8 @@ if __name__ == "__main__":
 	util.create_input_args(parser, ext=".json")
 	util.create_output_args(parser, suffix="{full|{cc_type}_pruned}.graphml")
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
+	prune_group = parser.add_argument_group('Graph Buiding Options')
+	parser.add_argument("--connection_types","--types", nargs='+', default=["retweet", "reply", "quote"], help="Types of connections to include in the graph (default: retweet, reply, quote)")
 	# Create a group for pruning-related arguments
 	prune_group = parser.add_argument_group('Pruning Options')
 	prune_group.add_argument("--min_connections","--connections", type=int, default=2, help="Minimum number of connections for a node to be kept in the graph (default: 2)")
@@ -156,25 +158,13 @@ if __name__ == "__main__":
 	start_time = time.time()
 
 	input_files = util.parse_input_files_arg(args.input_file, ext=".json")
-	output_files = util.parse_output_files_arg(args.output, input_files)
+	print(f"Output file base: {args.output}")
 
-	for i, input_file in enumerate(input_files):
-		if not os.path.exists(input_file):
-			print(f"Input file does not exist: {input_file}")
-			exit(1)
-		tweets_json = load_tweets_from_json(input_file)
-		nx_g = create_nx_graph(tweets_json)
-		if isinstance(output_files, list):
-			output_file = output_files[i] + "_full.graphml"
-		else:
-			output_file = output_files
-		save_nx_graph(nx_g, output_file)
-		nx_pruned = prune_graph(nx_g, args.min_connections, args.min_weight, args.max_iterations, args.cc_type, args.verbose)
-		if isinstance(output_files, list):
-			output_file = f"{output_files[i]}_{args.cc_type}-pruned.graphml"
-		else:
-			output_file = output_files
-		save_nx_graph(nx_pruned, output_file)
+	tweets_json = load_tweets_from_json(input_files)
+	nx_g = create_nx_graph(tweets_json, connections_to_keep=args.connection_types)
+	save_nx_graph(nx_g, args.output + "_full.graphml")
+	nx_pruned = prune_graph(nx_g, args.min_connections, args.min_weight, args.max_iterations, args.cc_type, args.verbose)
+	save_nx_graph(nx_pruned, f"{args.output}_{args.cc_type}-pruned.graphml")
 
 	elapsed_time = time.time() - start_time
 	print(f"Total time taken: {humanize.naturaldelta(elapsed_time)}")

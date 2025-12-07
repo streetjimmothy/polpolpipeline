@@ -89,7 +89,14 @@ def save_file(output_file, graph):
 		print(f"Error saving community graph to {output_file}: {e}")
 
 
-def save_central_tweets(community_graph, main_graph, output_file, num_nodes=0, target_community=-1, p=5):
+def save_central_tweets(
+	community_graph, 
+	main_graph, 
+	output_file, 
+	num_nodes=0, 
+	target_community=-1, 
+	p=5
+):
 	# PRINT TWEETS FROM num_nodes MOST CENTRAL NODES FROM EACH COMMUNITY that is more than p% of the graph TO FILE
 
 	# CONNECT TO DATABASE
@@ -217,6 +224,7 @@ if __name__ == "__main__":
 	parser.add_argument("--target-community", type=int, default=-1, help="If specified, only save tweets from this community (default: -1, which means all communities will be processed). 0 indexed.")
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
 	parser.add_argument("-db", "--db",required=False, help="Database connection string override (default: connects to Nectar MongoDB instance)")
+	#parser.add_argument("--follow_RTs", "--follow_rts", action='store_true', help="When saving central tweets, follow retweets to get the original tweet text.")
 
 	args = parser.parse_args()
 
@@ -230,7 +238,7 @@ if __name__ == "__main__":
 
 	start_time = time.time()
 	input_files = util.parse_input_files_arg(args.input_file, ext=".graphml")
-	output_files = util.parse_output_files_arg(args.output_file, input_files)
+	output_files = util.parse_output_files_arg(args.output, input_files)
 
 	for input_file, output_file in zip(input_files, output_files):
 		if not os.path.exists(input_file):
@@ -247,7 +255,14 @@ if __name__ == "__main__":
 			save_file(output_file, ig_g)
 		print(f"Community detection completed for {input_file}")
 		print("Saving central tweets to file...")
-		save_central_tweets(ig_community_graph, ig_g, os.path.splitext(output_file)[0], args.save_central_tweets, args.target_community, args.community_size)
+		save_central_tweets(
+			ig_community_graph, 
+			ig_g, 
+			output_file=os.path.splitext(output_file)[0], 
+			num_nodes=args.save_central_tweets, 
+			target_community=args.target_community, 
+			p=args.community_size
+		)
 
 
 	elapsed_time = time.time() - start_time
