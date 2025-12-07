@@ -189,13 +189,14 @@ def main():
 			"num_topics": args.max_topics,
 			"max_iterations": 100
 		},
-		"08c - LDA_then_BERTopic.py": {
+		"08c - LDA_BERTopic.py": {
 			"num_topics": args.max_topics,
 			"max_iterations": 100
 		},
-		# "08d - LDA_powered_BERTopic.py" : {},
-		# "08e - BERTopic_then_LDA.py": {},
-		# "08f - TF-IDF.py": {}
+		"08d - BERTopic_LDA_clustering.py" : {
+			"num_topics": args.max_topics,
+			"max_iterations": 100
+		},
 	}
 
 	
