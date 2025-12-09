@@ -13,7 +13,9 @@ numeric_sequences_not_dates = rb"\d{5,}"
 header_links = rb"#\W.+?"+end_of_url
 dates = rb"/\d{2,4}"
 cnn_header_links = rb"(#h.+?)(?="+end_of_url+rb")"
+abc_trailing_ids = rb"(?:abc\.net\.au.*?)(\d+)+" + end_of_url
 trailing_ids = rb"[-_]\d+?(?="+end_of_url+rb")|_n_.+?(?="+end_of_url+rb")"
+UUID_like = rb"([0-9a-f]{4}-){4}[0-9a-f]{4}"
 UUID = rb"[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}"
 ASCII_DISALLOWED_RE = re.compile(
 	web_common + b"|" + 
@@ -23,6 +25,8 @@ ASCII_DISALLOWED_RE = re.compile(
 	trailing_ids + b"|" + 
 	dates + b"|" + 
 	cnn_header_links + b"|" + 
+	abc_trailing_ids + b"|" +
+	UUID_like + b"|" +
 	UUID, 
 	re.IGNORECASE
 )
@@ -90,7 +94,7 @@ if __name__ == "__main__":
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
 
 	args = parser.parse_args()
-	input_files = util.parse_input_files_arg(args.input_file, ext=".txt")
+	input_files = util.parse_input_files_arg(args.input_file, ext="-resolved.txt")
 	try:
 		for input_path in input_files:
 			process_file(Path(input_path), Path(f"{os.path.splitext(input_path)[0]}-denoised.txt"), verbose=args.verbose)
