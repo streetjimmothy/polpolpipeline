@@ -44,7 +44,7 @@ def main():
 	with open(args.community_colours, 'r') as f:
 		community_info = json.load(f)
 		community_colours = community_info.get("community_colours", "")
-		community_labels = community_info.get("community_label", "")
+		community_labels = community_info.get("community_labels", "")
 
 
 
