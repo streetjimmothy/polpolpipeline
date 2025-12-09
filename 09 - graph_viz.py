@@ -5,6 +5,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from pathlib import Path
 from collections import defaultdict
+import nx_cugraph as nxcg
 
 def main():
 	parser = argparse.ArgumentParser(description="Read a GraphML file and render it to PNG using ForceAtlas2 layout")
@@ -15,6 +16,7 @@ def main():
 	parser.add_argument("--iterations",type=int,default=100,help="ForceAtlas2 iterations (default: 100)")
 	parser.add_argument("--node-size",type=int,default=300,help="Node size for visualization (default: 300)")
 	parser.add_argument("--community-colours",type=str,required=True,help="Path to a json file mapping community labels to colours")
+	parser.add_argument("--community-label",type=str,default="T",help="Node attribute to use for community labels (default: 'T')")
 
 	args = parser.parse_args()
 
@@ -31,20 +33,21 @@ def main():
 
 	print(f"Loading graph from {input_path}...")
 	G = nx.read_graphml(str(input_path))
+	nxcg_G = nxcg.from_networkx(G) 
 	print(f"Graph loaded: {G.number_of_nodes()} nodes, {G.number_of_edges()} edges")
 
+	print("Computing ForceAtlas2 layout...")
 	pos = nx.forceatlas2_layout(
-		G,
-		max_iter=args.iterations,
-		backend="nx-cugraph" if "nx-cugraph" in nx.config.available_backends() else "networkx"
+		nxcg_G,
+		max_iter=args.iterations
 	)
 
 	# Load community colours
 	import json
 	with open(args.community_colours, 'r') as f:
 		community_info = json.load(f)
-		community_colours = community_info.get("community_colours", "")
-		community_labels = community_info.get("community_label", "")
+		community_colours = community_info.get("colours", "")
+		community_labels = community_info.get("label", "")
 
 
 
