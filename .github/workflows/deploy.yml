@@ -20,29 +20,6 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          path: deploy
-      - run: chmod 600 deploy/tw_compute.pem
-      - run: ssh ubuntu@118.138.244.221 -i "deploy/tw_compute.pem" -o "StrictHostKeyChecking=no" # we can't add ssh -o to rsync -e, so we need to connect here to add the key to the hosts file
-      - run: rsync -avz --delete --mkpath --exclude .git/ --exclude .vscode/ deploy/ ubuntu@118.138.244.221:/home/ubuntu/pipeline -e "ssh -i deploy/tw_compute.pem" 
-
-      - uses: actions/checkout@v4
-        with: 
-          repository: streetjimmothy/polpolgraph
-          path: targets/polpolgraph
-          token: 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
-      - run: rsync -avz --delete --mkpath --exclude .git/ --exclude .vscode/ targets/polpolgraph/ ubuntu@118.138.244.221:/home/ubuntu/pipeline/polpolgraph -e "ssh -i deploy/tw_compute.pem" 
-
-      - uses: actions/checkout@v4
-        with: 
-          repository: streetjimmothy/polpolNLP
-          path: targets/polpolNLP
-          token: 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
-      - run: rsync -avz --delete --mkpath --exclude .git/ --exclude .vscode/ targets/polpolNLP/ ubuntu@118.138.244.221:/home/ubuntu/pipeline/polpolNLP -e "ssh -i deploy/tw_compute.pem" 
 
       
       # - uses: actions/setup-python@v5
