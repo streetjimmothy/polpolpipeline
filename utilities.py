@@ -77,3 +77,36 @@ def parse_output_files_arg(output: str | None, input_files: list[str]) -> list[s
 			raise ValueError("When multiple input files are specified, the output must be a directory")
 
 	return output	#a single input file and a single output file - the lack of list indicates the single file case
+
+def get_community_colour(community: str | int, community_colours_path: str | None) -> str:
+	if community_colours_path is None:
+		# Default colours
+		default_colours = [
+			"blue", "orange", "green", "red", "purple",
+			"brown", "pink", "gold", "olive", "cyan"
+		]
+		try:
+			index = int(community) % len(default_colours)
+			return default_colours[index]
+		except ValueError:
+			return "grey"  # Fallback colour for non-integer community labels
+	else:
+		import json
+		with open(community_colours_path, 'r') as f:
+			community_info = json.load(f)
+			community_colours = community_info.get("colours", {})
+			community_labels = community_info.get("labels", "")
+			if isinstance(community, int):
+				community = str(community)
+				if community in community_labels:
+					community = community_labels[community]
+			
+			return community_colours.get(community, "grey"),
+
+
+	# Load community colours
+	import json
+	with open(args.community_colours, 'r') as f:
+		community_info = json.load(f)
+		community_colours = community_info.get("colours", "")
+		community_labels = community_info.get("labels", "")

@@ -6,15 +6,16 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from collections import defaultdict
 import nx_cugraph as nxcg
+import utilities as utils
 
 def main():
 	parser = argparse.ArgumentParser(description="Read a GraphML file and render it to PNG using ForceAtlas2 layout")
 	parser.add_argument("-i", "--input_file",type=str,help="Path to the input GraphML file")
 	parser.add_argument("-o", "--output",type=str,default=None,help="Output PNG file path (default: input_file with .png extension)")
 	parser.add_argument("--size",type=int,default=12,	help="Figure size in inches (default: 12)")
-	parser.add_argument("--dpi",type=int,default=150,help="DPI for output PNG (default: 150)")
-	parser.add_argument("--iterations",type=int,default=100,help="ForceAtlas2 iterations (default: 100)")
-	parser.add_argument("--node-size",type=int,default=300,help="Node size for visualization (default: 300)")
+	parser.add_argument("--dpi",type=int,default=200,help="DPI for output PNG (default: 150)")
+	parser.add_argument("--iterations",type=int,default=400,help="ForceAtlas2 iterations (default: 100)")
+	parser.add_argument("--node-size",type=int,default=10,help="Node size for visualization (default: 300)")
 	parser.add_argument("--community-colours",type=str,required=True,help="Path to a json file mapping community labels to colours")
 	parser.add_argument("--community-label",type=str,default="T",help="Node attribute to use for community labels (default: 'T')")
 
@@ -39,15 +40,10 @@ def main():
 	print("Computing ForceAtlas2 layout...")
 	pos = nx.forceatlas2_layout(
 		nxcg_G,
-		max_iter=args.iterations
+		max_iter=args.iterations,
+		distributed_action=False,
+		gravity=0.8
 	)
-
-	# Load community colours
-	import json
-	with open(args.community_colours, 'r') as f:
-		community_info = json.load(f)
-		community_colours = community_info.get("colours", "")
-		community_labels = community_info.get("labels", "")
 
 
 
@@ -64,15 +60,21 @@ def main():
 
 	communities = list(communities_by_attr.values())
 
-	for i, community in enumerate(communities):
-		subgraph = G.subgraph(community)
+	for i in range(len(communities) - 1, -1, -1):
+		subgraph = G.subgraph(communities[i])
+		nx.draw_networkx_edges(
+			subgraph, pos, 
+			alpha=0.3, edge_color=utils.get_community_colour(i, args.community_colours),
+			ax=ax,
+			node_size=args.node_size
+		)
 		nx.draw_networkx_nodes(
 			subgraph, pos,
 			node_size=args.node_size,
-			node_color=community_colours.get(community_labels[i], "xkcd:lightgrey"),
+			node_color=utils.get_community_colour(i, args.community_colours),
 			ax=ax
 		)
-	nx.draw_networkx_edges(G, pos, alpha=0.3, ax=ax)
+		
 
 	# Draw labels if nodes have them
 	if all("label" in G.nodes[node] for node in list(G.nodes())[:min(10, G.number_of_nodes())]):
@@ -89,4 +91,4 @@ def main():
 
 
 if __name__ == "__main__":
-	exit(main())
+	main()
