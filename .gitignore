@@ -135,3 +135,7 @@ cython_debug/
 *.log
 *.pdf
 *.graphml
+
+models/
+roberta/
+*.sh
