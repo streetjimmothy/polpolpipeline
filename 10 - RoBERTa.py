@@ -161,7 +161,11 @@ if __name__ == "__main__":
 		else:
 			with open(file, 'r', encoding='utf-8') as f:
 				lines = f.readlines()
-		print(f"Loaded {len(lines)} lines from {file}.")
+		
+		# Deduplicate lines
+		lines = list(dict.fromkeys(lines))
+		
+		print(f"Loaded {len(lines)} unique lines from {file}.")
 
 		for model_name, labels in models_labels.items():
 			print(f"Running classification for model: {model_name} on file: {file}")
