@@ -6,7 +6,6 @@ from collections import defaultdict
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import os
 
 #plot all communities from one country
 
@@ -50,7 +49,7 @@ if __name__ == "__main__":
 
 	input_data = {}
 	for input_path in input_paths:
-		comm_name = input_path.split("?")[0].split("/")[-1].split(".csv")[0]
+		comm_name = input_path.split("?")[0].split("/")[-1].split('\\')[-1].split(".csv")[0]
 		data = {}
 		with open(input_path, "r", encoding="utf-8", errors="ignore") as f:
 			reader = csv.DictReader(f)
@@ -75,9 +74,8 @@ if __name__ == "__main__":
 						ax=ax,
 						data=values, 
 						colour=util.get_community_colour(col, args.community_colours),
-						fill=True, 
-						alpha=0.5, 
-						label=f"{comm_name} - {col}"
+						label=f"{comm_name} - {col}",
+						linewidth=2
 					)
 					
 					
@@ -85,12 +83,11 @@ if __name__ == "__main__":
 				sns.kdeplot(
 					ax=ax,
 					data=data["spectrum"], 
-					fill=True, 
-					alpha=0.5, 
-					label=f"{comm_name} - spectrum"
+					label=f"{comm_name}",
+					linewidth=2
 				)
 
-	plt.legend(title="Community - Column")
+	plt.legend(title="Communities")
 	plt.tight_layout()
 	plt.savefig(input_path.split('.csv')[0] + "_roBERta.png")
 	plt.close()
