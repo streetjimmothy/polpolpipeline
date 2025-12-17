@@ -110,3 +110,17 @@ def get_community_colour(community: str | int, community_colours_path: str | Non
 		community_info = json.load(f)
 		community_colours = community_info.get("colours", "")
 		community_labels = community_info.get("labels", "")
+
+
+def deduplicate_list(input_list: list[str], verbose: bool = False) -> list[str]:
+	deduplicated = set()
+	
+	if verbose:
+		print(f"Deduplicating list of length {len(input_list)}")
+		import tqdm
+		iterator = tqdm.tqdm(input_list, desc="Deduplicating", unit="items")
+	else:
+		iterator = input_list
+	for item in iterator:
+		deduplicated.add(item)
+	return list(deduplicated)
