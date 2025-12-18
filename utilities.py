@@ -78,8 +78,26 @@ def parse_output_files_arg(output: str | None, input_files: list[str]) -> list[s
 
 	return output	#a single input file and a single output file - the lack of list indicates the single file case
 
-def get_community_colour(community: str | int, community_colours_path: str | None) -> str:
-	if community_colours_path is None:
+def get_community_label(community: str | int, community_info_path: str | None) -> str:
+	if community_info_path is None:
+		return str(community)
+	else:
+		import json
+		with open(community_info_path, 'r') as f:
+			community_info = json.load(f)
+			community_labels = community_info.get("labels", "")
+			if isinstance(community, int):
+				community = str(community)
+			if community in community_labels:
+				community = community_labels[community]
+			else:
+				community = str(community)
+			
+			return community
+
+
+def get_community_colour(community: str | int, community_info_path: str | None) -> str:
+	if community_info_path is None:
 		# Default colours
 		default_colours = [
 			"blue", "orange", "green", "red", "purple",
@@ -92,16 +110,12 @@ def get_community_colour(community: str | int, community_colours_path: str | Non
 			return "grey"  # Fallback colour for non-integer community labels
 	else:
 		import json
-		with open(community_colours_path, 'r') as f:
+		with open(community_info_path, 'r') as f:
 			community_info = json.load(f)
 			community_colours = community_info.get("colours", {})
-			community_labels = community_info.get("labels", "")
-			if isinstance(community, int):
-				community = str(community)
-				if community in community_labels:
-					community = community_labels[community]
+			community = get_community_label(community, community_info_path)
 			
-			return community_colours.get(community, "grey"),
+			return community_colours.get(community, "grey")
 
 
 	# Load community colours
