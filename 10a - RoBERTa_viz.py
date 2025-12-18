@@ -1,15 +1,54 @@
 import argparse
 import csv
+import re
 import utilities as util
 import matplotlib.pyplot as plt
 from collections import defaultdict
 import numpy as np
-import matplotlib.pyplot as plt
 import seaborn as sns
 
-#plot all communities from one country
 
-#plot the some community from differnet countries
+def plot(ax, input_path, community_info, columns, spectrum=False):
+	sentiment_weights = np.linspace(-1, 1, len(columns))
+	
+	comm_number = re.search(r'\d+', input_path).group(0)
+	comm_name = util.get_community_label(comm_number, community_info)
+	data = {}
+	with open(input_path, "r", encoding="utf-8", errors="ignore") as f:
+		reader = csv.DictReader(f)
+		for row in reader:
+			if not spectrum:
+				for col in columns:
+					if col not in data:
+						data[col] = []
+					data[col].append(float(row[col]))
+			else:
+
+				# For each tweet's scores, calculate the continuum score
+				if "spectrum" not in data:
+					data["spectrum"] = []
+				scores = [float(row[col]) for col in columns]
+				score = np.dot(sentiment_weights, scores)
+				data["spectrum"].append(score)
+
+		if not spectrum:
+			for col, values in data.items():
+				sns.kdeplot(
+					ax=ax,
+					data=values,
+					color=util.get_community_colour(comm_name, community_info),
+					label=f"{comm_name}",
+					linewidth=2
+				)
+		else:
+			print(f"Plotting spectrum for community: {comm_name} with {len(data['spectrum'])} entries. Colour: {util.get_community_colour(comm_name, args.community_colours)}")
+			sns.kdeplot(
+				ax=ax,
+				data=data["spectrum"],
+				label=f"{comm_name}",
+				linewidth=2,
+				color=util.get_community_colour(comm_name, args.community_colours),
+			)
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="Plots an existing RoBERTa output from a csv.")
@@ -32,7 +71,10 @@ if __name__ == "__main__":
 		plt.title("Histogram of Sentiment Scores as a Continuum")
 		plt.xlabel("Continuum Score (-1 = Strong Negative, 1 = Strong Positive)")
 	else:
-		plt.title("RoBERTa Sentiment Analysis KDE Plot")
+		if args.columns:
+			plt.title(f"RoBERTa Sentiment Analysis KDE Plot for columns: {args.columns}")
+		else:
+			plt.title("RoBERTa Sentiment Analysis KDE Plot")
 		plt.xlabel("Sentiment Score")
 	plt.ylabel("Density")
 	columns = None
@@ -45,49 +87,17 @@ if __name__ == "__main__":
 	else:
 		columns = [col.strip() for col in args.columns.split(",")]
 
-	sentiment_weights = np.linspace(-1, 1, len(columns))
-
-	input_data = {}
+	
 	for input_path in input_paths:
-		comm_name = input_path.split("?")[0].split("/")[-1].split('\\')[-1].split(".csv")[0]
-		data = {}
-		with open(input_path, "r", encoding="utf-8", errors="ignore") as f:
-			reader = csv.DictReader(f)
-			for row in reader:
-				if not args.spectrum:
-					for col in columns:
-						if col not in data:
-							data[col] = []
-						data[col].append(float(row[col]))
-				else:
-
-					# For each tweet's scores, calculate the continuum score
-					if "spectrum" not in data:
-						data["spectrum"] = []
-					scores = [float(row[col]) for col in columns]
-					score = np.dot(sentiment_weights, scores)
-					data["spectrum"].append(score)
-			
-			if not args.spectrum:
-				for col, values in data.items():
-					sns.kdeplot(
-						ax=ax,
-						data=values, 
-						colour=util.get_community_colour(col, args.community_colours),
-						label=f"{comm_name} - {col}",
-						linewidth=2
-					)
-					
-					
-			else:
-				sns.kdeplot(
-					ax=ax,
-					data=data["spectrum"], 
-					label=f"{comm_name}",
-					linewidth=2
-				)
+		plot(
+			ax=ax, 
+			input_path=input_path, 
+			community_info=args.community_colours if args.community_colours else None,
+			columns = columns,
+			spectrum = args.spectrum
+		)
 
 	plt.legend(title="Communities")
 	plt.tight_layout()
-	plt.savefig(input_path.split('.csv')[0] + "_roBERta.png")
+	plt.savefig(input_path.split('.csv')[0] + "_roBERta.png", dpi=300)
 	plt.close()
