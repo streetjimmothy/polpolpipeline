@@ -1,7 +1,7 @@
 import argparse
 import csv
 import re
-import utilities as util
+import utilities as utils
 import matplotlib.pyplot as plt
 from collections import defaultdict
 import numpy as np
@@ -12,7 +12,7 @@ def plot(ax, input_path, community_info, columns, spectrum=False):
 	sentiment_weights = np.linspace(-1, 1, len(columns))
 	
 	comm_number = re.search(r'\d+', input_path).group(0)
-	comm_name = util.get_community_label(comm_number, community_info)
+	comm_name = utils.get_community_label(comm_number, community_info)
 	data = {}
 	with open(input_path, "r", encoding="utf-8", errors="ignore") as f:
 		reader = csv.DictReader(f)
@@ -36,24 +36,24 @@ def plot(ax, input_path, community_info, columns, spectrum=False):
 				sns.kdeplot(
 					ax=ax,
 					data=values,
-					color=util.get_community_colour(comm_name, community_info),
+					color=utils.get_community_colour(comm_name, community_info),
 					label=f"{comm_name}",
 					linewidth=2
 				)
 		else:
-			print(f"Plotting spectrum for community: {comm_name} with {len(data['spectrum'])} entries. Colour: {util.get_community_colour(comm_name, args.community_colours)}")
+			print(f"Plotting spectrum for community: {comm_name} with {len(data['spectrum'])} entries. Colour: {utils.get_community_colour(comm_name, community_info)}")
 			sns.kdeplot(
 				ax=ax,
 				data=data["spectrum"],
 				label=f"{comm_name}",
 				linewidth=2,
-				color=util.get_community_colour(comm_name, args.community_colours),
+				color=utils.get_community_colour(comm_name, community_info),
 			)
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="Plots an existing RoBERTa output from a csv.")
-	util.create_input_args(parser, ext=".csv", help="Input CSV file(s) containing RoBERTa output data.")
-	util.create_output_args(parser, suffix="{plot_type}_{plot_community}.png")  # TODO: This isn't actually used properly yet
+	utils.create_input_args(parser, ext=".csv", help="Input CSV file(s) containing RoBERTa output data.")
+	utils.create_output_args(parser, suffix="{plot_type}_{plot_community}.png")  # TODO: This isn't actually used properly yet
 	parser.add_argument("-c", "--columns", type=str, required=False, help="Columns to plot for. Comma-separated list of column names from the CSV file. Defaults to all columns except the first")
 	parser.add_argument("-s", "--spectrum", action="store_true", help="Whether to plot the values as a spectrum. If true, the leftmost column arg will be the low end of the spectrum, and the rightmost column arg the high end.")
 	parser.add_argument("--community-colours",type=str,required=False,help="Path to a json file mapping community labels to colours, otherwise default colours will be used.")
@@ -62,8 +62,8 @@ if __name__ == "__main__":
 
 	title = None
 
-	input_paths = util.parse_input_files_arg(args.input_file, ext=".csv")
-	output_paths = util.parse_output_files_arg(args.output, input_paths)
+	input_paths = utils.parse_input_files_arg(args.input_file, ext=".csv")
+	output_paths = utils.parse_output_files_arg(args.output, input_paths)
 
 	fig = plt.figure(figsize=(20,10),facecolor='w')
 	ax = fig.add_subplot(111)
