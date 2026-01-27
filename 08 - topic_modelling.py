@@ -1,6 +1,6 @@
 import os
 import argparse
-import utilities as util
+import utilities as utils
 import importlib.util
 from pathlib import Path
 from tqdm import tqdm
@@ -152,8 +152,8 @@ def load_stopwords(custom_path: Path | None):
 
 def main():
 	parser = argparse.ArgumentParser(description="Topic Modelling multirunner")
-	util.create_input_args(parser)
-	util.create_output_args(parser, suffix='{.csv|.png|.html}', help="Directory to save output plots and CSVs. Each stage will create its own subdirectory inside this directory")
+	utils.create_input_args(parser)
+	utils.create_output_args(parser, suffix='{.csv|.png|.html}', help="Directory to save output plots and CSVs. Each stage will create its own subdirectory inside this directory")
 	parser.add_argument("--stop_words", required=False, help="Custom stopwords list to use")
 	parser.add_argument("--min-df", type=int, default=5, help="Minimum document frequency for CountVectorizer (default: 5)")
 	parser.add_argument("--max-df", type=float, default=0.7, help="Maximum document frequency ratio (default: 0.7)")
@@ -162,8 +162,8 @@ def main():
 	parser.add_argument("--max_topics", type=int, default=10, help="Maximum number of topics to reduce to (default: 10)")
 	args = parser.parse_args()
 
-	input_files = util.parse_input_files_arg(args.input_file, ext="-denoised.txt")
-	output_files = util.parse_output_files_arg(args.output, input_files)
+	input_files = utils.parse_input_files_arg(args.input_file, ext="-denoised.txt")
+	output_files = utils.parse_output_files_arg(args.output, input_files)
 
 	stopwords = ENGLISH_STOP_WORDS
 	if (args.stop_words):

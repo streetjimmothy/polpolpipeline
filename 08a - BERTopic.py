@@ -13,6 +13,7 @@ from bertopic.vectorizers import ClassTfidfTransformer
 from bertopic.representation import MaximalMarginalRelevance
 import pandas as pd
 from pathlib import Path
+import utilities as utils
 
 def run_bertopic( 
 	documents,
@@ -153,8 +154,8 @@ def run(
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="BERTopic Modeling on Tweets. Run from Topic Modelling multirunner.")
-	# util.create_input_args(parser)
-	# util.create_output_args(parser, suffix='{.csv|.png|.html}', help="Directory to save output plots and CSVs")
+	# utils.create_input_args(parser)
+	# utils.screate_output_args(parser, suffix='{.csv|.png|.html}', help="Directory to save output plots and CSVs")
 	# parser.add_argument("--document_column", default="tweet_text", help="Column name in the CSV that contains the tweet text")
 	# parser.add_argument("--max_topics", type=int, default=50, help="Maximum number of topics to reduce to (default: 50)")
 	# parser.add_argument("--min_cluster_size", type=int, default=150, help="Minimum cluster size for HDBSCAN (optional, helps control number of topics)")
@@ -169,13 +170,13 @@ if __name__ == "__main__":
 	# 	custom_stopwords = load_stopwords(Path(args.stop_words))
 	# 	print(f"Loaded {len(custom_stopwords)} custom stopwords")
 
-	# input_files = util.parse_input_files_arg(args.input_file, ext="-denoised.txt")
-	# output_files = util.parse_output_files_arg(args.output, input_files)
+	# input_files = utils.parse_input_files_arg(args.input_file, ext="-denoised.txt")
+	# output_files = utils.parse_output_files_arg(args.output, input_files)
 
 	# document_column = args.document_column
 
 	# for input_file, output_file in zip(input_files, output_files):
-	# 	process_file(
+	# 	run(
 	# 		input_file,
 	# 		output_file,
 	# 		stopwords=custom_stopwords if args.stop_words else None,
