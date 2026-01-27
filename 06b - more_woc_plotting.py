@@ -217,6 +217,8 @@ if __name__ == "__main__":
 	parser.add_argument("-m", "--merge_plots", action='store_true', help="If set, merges all community plots into a single plot (only applicable when plotting all communities).")
 	parser.add_argument("-d", "--max-degree", type=int, default=9, help="Maximum degree to consider when plotting (default: 9). Nodes with degree higher than this will be treated as having this degree.")
 	parser.add_argument("--comm-min", type=community_min_param, default=0.0, help="Threshold for communities to plot. If n<1, plot all communites larger than n% of the total graph size. If n>1 plot n largest communities (default: 0.0, plot all).")
+	parser.add_argument("-D", action='store_true', help="Plot D scores only")
+	parser.add_argument("-S", action='store_true', help="Plot S scores only")
 
 	args = parser.parse_args()
 	

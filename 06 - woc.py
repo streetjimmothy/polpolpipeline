@@ -24,7 +24,7 @@ import logging
 import sys
 spinner = ['|', '/', '-', '\\']
 
-import utilities as util
+import utilities as utils
 
 
 class Crowd:
@@ -697,16 +697,16 @@ def wisdom_of_crowds(nx_graph, community=None, plot=False, crowd=None, filename=
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="Runs wisdom of the crowds. (Note: does not use the module, but had it defined inline because of issues with the current module version and Python 3.12+). \n\n Saves output to csv and optionally to a sullivan plot")
-	util.create_input_args(parser, ext=".grahpml")
-	util.create_output_args(parser, suffix="_woc.csv")	#TODO: This isn't actually used properly yet
+	utils.create_input_args(parser, ext=".grahpml")
+	utils.create_output_args(parser, suffix="_woc.csv")	#TODO: This isn't actually used properly yet
 	parser.add_argument("-c", "--communities", type=int, default=-1, help="Number of communites to consider (default: -1, which means each community). If set to n, will run the analysis for the top n communities. 0 means the full graph.")
 	parser.add_argument("--plot", action='store_true', help="Generate sullivan plot (default: False).")
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
 
 	args = parser.parse_args()
 
-	input_files = util.parse_input_files_arg(args.input_file, ext=".graphml")
-	output_files = util.parse_output_files_arg(args.output, input_files)
+	input_files = utils.parse_input_files_arg(args.input_file, ext=".graphml")
+	output_files = utils.parse_output_files_arg(args.output, input_files)
 
 	for input_file, output_file in zip(input_files, output_files):
 		graph=nx.read_graphml(input_file)
