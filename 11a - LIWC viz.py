@@ -9,22 +9,74 @@ community_data = {}
 averages = {}
 
 plots_to_generate = {
-	"Summary Variables": ['LIWC22.Analytic', 'LIWC22.Clout', 'LIWC22.Authentic', 'LIWC22.Tone'],
+	#"Summary Variables": ['LIWC22.Analytic', 'LIWC22.Clout', 'LIWC22.Authentic', 'LIWC22.Tone'],
 	"Dictionary Statistics": ['LIWC22.WC', 'LIWC22.WPS', 'LIWC22.BigWords', 'LIWC22.Dic'],
-	"Linguistic Dimensions": ['LIWC22.Linguistic', 'LIWC22.function', 'LIWC22.pronoun', 'LIWC22.ppron', 'LIWC22.i', 'LIWC22.we', 'LIWC22.you', 'LIWC22.shehe', 'LIWC22.they', 'LIWC22.ipron', 'LIWC22.det', 'LIWC22.article', 'LIWC22.number', 'LIWC22.prep', 'LIWC22.auxverb', 'LIWC22.adverb', 'LIWC22.conj', 'LIWC22.negate', 'LIWC22.verb', 'LIWC22.adj', 'LIWC22.quantity'],
-	"Drives": ['LIWC22.Drives', 'LIWC22.affiliation', 'LIWC22.achieve', 'LIWC22.power'],
-	"Cognition": ['LIWC22.allnone', 'LIWC22.cogproc', 'LIWC22.insight', 'LIWC22.cause', 'LIWC22.discrep', 'LIWC22.tentat', 'LIWC22.certitude', 'LIWC22.differ', 'LIWC22.memory'],
-	"Affect": ['LIWC22.Affect', 'LIWC22.tone_pos', 'LIWC22.tone_neg', 'LIWC22.emotion', 'LIWC22.emo_pos', 'LIWC22.emo_neg', 'LIWC22.emo_anx', 'LIWC22.emo_anger', 'LIWC22.emo_sad', 'LIWC22.swear'],
-	"Social": ['LIWC22.Social', 'LIWC22.socbehav', 'LIWC22.prosocial', 'LIWC22.polite', 'LIWC22.conflict', 'LIWC22.moral', 'LIWC22.comm'],
-	"Social References": ['LIWC22.socrefs', 'LIWC22.family', 'LIWC22.friend', 'LIWC22.female', 'LIWC22.male'],
-	"Culture": ['LIWC22.Culture', 'LIWC22.politic', 'LIWC22.ethnicity', 'LIWC22.tech'],
-	"Lifestyle": ['LIWC22.Lifestyle', 'LIWC22.leisure', 'LIWC22.home', 'LIWC22.work', 'LIWC22.money', 'LIWC22.relig'],
-	"Physical": ['LIWC22.Physical', 'LIWC22.health', 'LIWC22.illness', 'LIWC22.wellness', 'LIWC22.mental', 'LIWC22.substances', 'LIWC22.sexual', 'LIWC22.food', 'LIWC22.death'],
-	"Needs": ['LIWC22.need', 'LIWC22.want', 'LIWC22.acquire', 'LIWC22.lack', 'LIWC22.fulfill', 'LIWC22.fatigue'],
-	"Motivation": ['LIWC22.reward', 'LIWC22.risk', 'LIWC22.curiosity', 'LIWC22.allure'],
-	"Perception": ['LIWC22.Perception', 'LIWC22.attention', 'LIWC22.motion', 'LIWC22.space', 'LIWC22.visual', 'LIWC22.auditory', 'LIWC22.feeling', 'LIWC22.time', 'LIWC22.focuspast', 'LIWC22.focuspresent', 'LIWC22.focusfuture'],
-	"Conversation": ['LIWC22.Conversation', 'LIWC22.netspeak', 'LIWC22.assent', 'LIWC22.nonflu', 'LIWC22.filler'],
-	"Punctuation": ['LIWC22.AllPunc', 'LIWC22.Period', 'LIWC22.Comma', 'LIWC22.QMark', 'LIWC22.Exclam', 'LIWC22.Apostro', 'LIWC22.OtherP', 'LIWC22.Emoji']
+	#"Linguistic Dimensions": ['LIWC22.Linguistic', 'LIWC22.function', 'LIWC22.pronoun', 'LIWC22.ppron', 'LIWC22.i', 'LIWC22.we', 'LIWC22.you', 'LIWC22.shehe', 'LIWC22.they', 'LIWC22.ipron', 'LIWC22.det', 'LIWC22.article', 'LIWC22.number', 'LIWC22.prep', 'LIWC22.auxverb', 'LIWC22.adverb', 'LIWC22.conj', 'LIWC22.negate', 'LIWC22.verb', 'LIWC22.adj', 'LIWC22.quantity'],
+	#"Drives": ['LIWC22.Drives', 'LIWC22.affiliation', 'LIWC22.achieve', 'LIWC22.power'],
+	#"Cognition": ['LIWC22.allnone', 'LIWC22.cogproc', 'LIWC22.insight', 'LIWC22.cause', 'LIWC22.discrep', 'LIWC22.tentat', 'LIWC22.certitude', 'LIWC22.differ', 'LIWC22.memory'],
+	#"Affect": ['LIWC22.Affect', 'LIWC22.tone_pos', 'LIWC22.tone_neg', 'LIWC22.emotion', 'LIWC22.emo_pos', 'LIWC22.emo_neg', 'LIWC22.emo_anx', 'LIWC22.emo_anger', 'LIWC22.emo_sad', 'LIWC22.swear'],
+	"Affect": ['LIWC22.Affect', 'LIWC22.EmoPos', 'LIWC22.EmoNeg', 'LIWC22.Anxiety', 'LIWC22.Anger', 'LIWC22.Sad'],	##ARG/ES/2007
+	#"Social": ['LIWC22.Social', 'LIWC22.socbehav', 'LIWC22.prosocial', 'LIWC22.polite', 'LIWC22.conflict', 'LIWC22.moral', 'LIWC22.comm'],
+	"Social": ['LIWC22.Social', 'LIWC22.Family', 'LIWC22.Friends', 'LIWC22.Humans'],  # ARG/ES/2007
+	#"Social References": ['LIWC22.socrefs', 'LIWC22.family', 'LIWC22.friend', 'LIWC22.female', 'LIWC22.male'],
+	#"Culture": ['LIWC22.Culture', 'LIWC22.politic', 'LIWC22.ethnicity', 'LIWC22.tech'],
+	#"Lifestyle": ['LIWC22.Lifestyle', 'LIWC22.leisure', 'LIWC22.home', 'LIWC22.work', 'LIWC22.money', 'LIWC22.relig'],
+	#"Physical": ['LIWC22.Physical', 'LIWC22.health', 'LIWC22.illness', 'LIWC22.wellness', 'LIWC22.mental', 'LIWC22.substances', 'LIWC22.sexual', 'LIWC22.food', 'LIWC22.death'],
+	#"Needs": ['LIWC22.need', 'LIWC22.want', 'LIWC22.acquire', 'LIWC22.lack', 'LIWC22.fulfill', 'LIWC22.fatigue'],
+	#"Motivation": ['LIWC22.reward', 'LIWC22.risk', 'LIWC22.curiosity', 'LIWC22.allure'],
+	#"Perception": ['LIWC22.Perception', 'LIWC22.attention', 'LIWC22.motion', 'LIWC22.space', 'LIWC22.visual', 'LIWC22.auditory', 'LIWC22.feeling', 'LIWC22.time', 'LIWC22.focuspast', 'LIWC22.focuspresent', 'LIWC22.focusfuture'],
+	#"Conversation": ['LIWC22.Conversation', 'LIWC22.netspeak', 'LIWC22.assent', 'LIWC22.nonflu', 'LIWC22.filler'],
+	#"Punctuation": ['LIWC22.AllPunc', 'LIWC22.Period', 'LIWC22.Comma', 'LIWC22.QMark', 'LIWC22.Exclam', 'LIWC22.Apostro', 'LIWC22.OtherP', 'LIWC22.Emoji'],
+	"Morality As Cooperation - Virtues": [
+		"morality-as-cooperation.VirtueFamily",
+		"morality-as-cooperation.VirtueGroup",
+		"morality-as-cooperation.VirtueReciprocity",
+		"morality-as-cooperation.VirtueHeroism",
+		"morality-as-cooperation.VirtueDeference",
+		"morality-as-cooperation.VirtueFairness",
+		"morality-as-cooperation.VirtueProperty",
+	],
+	"Morality As Cooperation - Vices": [
+		"morality-as-cooperation.ViceFamily",
+		"morality-as-cooperation.ViceGroup",
+		"morality-as-cooperation.ViceReciprocity",
+		"morality-as-cooperation.ViceHeroism",
+		"morality-as-cooperation.ViceDeference",
+		"morality-as-cooperation.ViceFairness",
+		"morality-as-cooperation.ViceProperty",
+	],
+	"Motivated Social Cognition": [
+		"motivated-social-cognition.Threat",
+		"motivated-social-cognition.UncertaintyAvoidance",
+		"motivated-social-cognition.ResistanceToChange",
+		"motivated-social-cognition.EndorsementOfInequality",
+	],
+	"Affective Polarisation (English)": [
+		"affective-polarization-english.Negative affect",
+		"affective-polarization-english.Delegitimation",
+		"affective-polarization-english.Political",
+	],
+	"Affective Polarisation (Spanish)": [
+		"affective-polarization-espanol.Negative affect",
+		"affective-polarization-espanol.Delegitimation",
+		"affective-polarization-espanol.Political",
+	],
+	"Personal Values": [
+		"personal-values.Conservation",
+		"personal-values.SelfTranscendence",
+		"personal-values.SelfEnhancement",
+		"personal-values.Security",
+		"personal-values.Conformity",
+		"personal-values.Tradition",
+		"personal-values.Universalism",
+		"personal-values.Benevolence",
+		"personal-values.SelfDirection",
+		"personal-values.Stimulation",
+		"personal-values.Hedonism",
+		"personal-values.Achievement",
+		"personal-values.Power",
+	],
+
 }
 
 
@@ -72,29 +124,30 @@ def import_liwc_csv(dir, community_mappings):
 			continue
 		# Assumes filename format: [countrycode]_[prunetype]_[communityinfo]_tweets_[dicname]-dictionary.csv
 		community = csv_file.split('_')[2][0]
-		community_name = community_mappings[community]
-		if community_name not in community_data:
-			community_data[community_name] = {}
-		dictionary = csv_file.split('_')[-1].replace('-dictionary', '').replace('.csv', '')
-		if dictionary not in community_data[community_name]:
-			community_data[community_name][dictionary] = {}
+		if community in community_mappings:
+			community_name = community_mappings[community]
+			if community_name not in community_data:
+				community_data[community_name] = {}
+			dictionary = csv_file.split('_')[-1].replace('-dictionary', '').replace('.csv', '')
+			if dictionary not in community_data[community_name]:
+				community_data[community_name][dictionary] = {}
 
-		with open(os.path.join(dir, csv_file), newline='', encoding='utf-8') as f:
-			reader = csv.DictReader(f)
-			for row in reader:
-				for header in reader.fieldnames:
-					value = row[header]
-					if header == 'Segment':  # we never want this
-						continue
-					if header in duplicate_values and dictionary != 'LIWC22':  # expanded dictionaries seem to duplicate these values from the main dictionary
-						continue
-					if header == 'Dic' and dictionary != 'LIWC22':  # Dic is uniquie to each dictionary, so the label needs to icnldue the dictionary name
-						header = f'Dic_{dictionary}'
-					try:
-						value = float(value)
-					except ValueError:
-						continue  # Skip non-numeric values
-					community_data[community_name][dictionary][header] = value
+			with open(os.path.join(dir, csv_file), newline='', encoding='utf-8') as f:
+				reader = csv.DictReader(f)
+				for row in reader:
+					for header in reader.fieldnames:
+						value = row[header]
+						if header == 'Segment':  # we never want this
+							continue
+						if header in duplicate_values and dictionary != 'LIWC22':  # expanded dictionaries seem to duplicate these values from the main dictionary
+							continue
+						if header == 'Dic' and dictionary != 'LIWC22':  # Dic is unique to each dictionary, so the label needs to include the dictionary name
+							header = f'Dic_{dictionary}'
+						try:
+							value = float(value)
+						except ValueError:
+							continue  # Skip non-numeric values
+						community_data[community_name][dictionary][header] = value
 
 
 def calculate_averages():
@@ -136,7 +189,7 @@ def plot_variance(
 				continue
 			if community not in label_variance:
 				label_variance[community] = []
-			var = (data[_dic][_label] / averages[label]) if averages[label] != 0 else 1
+			var = (data[_dic].get(_label, 0) / averages[label]) if averages[label] != 0 else 1
 			label_variance[community].append(var)
 		if include_steddev:
 			if _label not in std_devs:
@@ -191,8 +244,8 @@ def plot_variance(
 		ax.bar(x, std_devs_neg, color=('xkcd:slate', 0.8), label='Std Dev', zorder=5, bottom=1)
 
 	if filename is not None:
+		print(f"Saving LIWC variance plot to: {filename}")
 		plt.savefig(filename, dpi=300, bbox_inches='tight')
-	plt.show()
 
 
 if __name__ == "__main__":
