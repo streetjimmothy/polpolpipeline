@@ -6,7 +6,7 @@ import argparse
 import re
 import os
 from typing import Optional
-import utilities as util
+import utilities as utils
 
 try:
 	# tqdm is optional; if missing we silently skip progress bars
@@ -119,13 +119,13 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(
 		description="Remove non-decodable and non-printable characters. Default: fast ASCII whitelist. Cleaned files saved to \"-cleaned.txt\" files."
 	)
-	util.create_input_args(parser)
-	util.create_output_args(parser, suffix='_{unicode|ascii}-cleaned.txt') #TODO: not used
+	utils.create_input_args(parser)
+	utils.create_output_args(parser, suffix='_{unicode|ascii}-cleaned.txt') #TODO: not used
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
 	parser.add_argument("--unicode", action="store_true", help="Use Unicode printable filtering (slower).")
 
 	args = parser.parse_args()
-	input_files=util.parse_input_files_arg(args.input_file, ext=".txt")
+	input_files=utils.parse_input_files_arg(args.input_file, ext=".txt")
 
 	file_type = 'ascii' if not args.unicode else 'unicode'
 	try:

@@ -8,7 +8,7 @@ import httpx
 from tqdm.asyncio import tqdm_asyncio
 from tqdm import tqdm
 import argparse
-import utilities as util
+import utilities as utils
 
 #find_module shim. (used by snscrape, deprecated in python3.13)
 import importlib.machinery as m
@@ -246,7 +246,7 @@ async def process_file_async(infile: str, outfile: str, verbose: bool = False):
 		await _async_client.aclose()
 
 
-def process_file(infile: str, outfile: str, *, verbose: bool = False):
+def process_file(infile: str, outfile: str, verbose: bool = False):
 	"""Synchronous facade for CLI usage."""
 	asyncio.run(process_file_async(infile, outfile, verbose=verbose))
 
@@ -255,11 +255,11 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(
 		description="Resolves URLs."
 	)
-	util.create_input_args(parser)
-	util.create_output_args(parser, suffix='-resolved.txt')	#TODO: not used
+	utils.create_input_args(parser)
+	utils.create_output_args(parser, suffix='-resolved.txt')	#TODO: not used
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
 
 	args = parser.parse_args()
-	input_files = util.parse_input_files_arg(args.input_file, ext=".txt")
+	input_files = utils.parse_input_files_arg(args.input_file, ext=".txt")
 	for input_path in input_files:
 		process_file(input_path, f"{os.path.splitext(input_path)[0]}-resolved.txt", verbose=args.verbose)

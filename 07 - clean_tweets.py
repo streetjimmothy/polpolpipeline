@@ -3,7 +3,7 @@ import sys
 import argparse
 import importlib.util
 from pathlib import Path
-import utilities as util
+import utilities as utils
 
 
 def _load_module(path: Path, module_name: str):
@@ -21,7 +21,7 @@ def process_files(filename: Path, domain_csv: Path, unicode_mode: bool, verbose:
 	clean_mod = _load_module(Path('07a - clean_text.py'), 'clean_text_mod')
 	resolve_mod = _load_module(Path('07b - resolve_URLs.py'), 'resolve_urls_mod')
 	rate_mod = _load_module(Path('07c - rate_URLs.py'), 'rate_urls_mod')
-	denoise_mod = _load_module(Path('07d - denoise_URLs.py'), 'denoise_urls_mod')
+	denoise_mod = _load_module(Path('07d - denoise.py'), 'denoise_urls_mod')
 
 	# Get function refs (with basic validation)
 	clean_func = getattr(clean_mod, 'process_file')
@@ -59,7 +59,7 @@ def process_files(filename: Path, domain_csv: Path, unicode_mode: bool, verbose:
 	if verbose:
 		print(f"[3/3] Denoising: {resolved_file} -> {denoised_file}")
 	# denoise.process_file(in_file, out_file, show_progress=verbose)
-	denoise_func(str(resolved_file), str(domain_csv), str(denoised_file), show_progress=verbose)
+	denoise_func(Path(resolved_file), Path(denoised_file), verbose=True)
 
 	# if verbose:
 	# 	print(f"[4/3] Rating URLs: {resolved_file} -> {rated_file}")
@@ -72,14 +72,14 @@ def process_files(filename: Path, domain_csv: Path, unicode_mode: bool, verbose:
 
 def main(argv=None):
 	parser = argparse.ArgumentParser(description='Pipeline: clean, resolve, rate tweet text files in a directory.')
-	util.create_input_args(parser)
-	util.create_output_args(parser, suffix='_{unicocde|ascii}-{-cleaned|-resolved|-denoised|-rated)}.{csv|txt}') #TODO: not used
+	utils.create_input_args(parser)
+	utils.create_output_args(parser, suffix='_{unicocde|ascii}-{-cleaned|-resolved|-denoised|-rated)}.{csv|txt}') #TODO: not used
 	parser.add_argument('--domain-csv', default='07c - domain_list_clean.csv', help='Domain CSV (default: 07c - domain_list_clean.csv)')
 	parser.add_argument('--unicode', action='store_true', help='Use Unicode cleaning mode (slower).')
 	parser.add_argument('--verbose', action='store_true', help='Verbose logging & progress bars if available.')
 	args = parser.parse_args(argv)
 
-	input_files = util.parse_input_files_arg(args.input_file, ext=".txt")
+	input_files = utils.parse_input_files_arg(args.input_file, ext=".txt")
 
 	for input_file in input_files:
 		try:

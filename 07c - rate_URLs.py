@@ -1,6 +1,6 @@
 import csv
 from typing import Dict
-import utilities as util
+import utilities as utils
 import os
 
 try:
@@ -65,13 +65,13 @@ def process_file(in_file, domain_csv, out_file, show_progress: bool = True):
 if __name__ == "__main__":  # simple CLI usage
 	import argparse
 	parser = argparse.ArgumentParser(description="Rate URLs in a text file against a domain CSV.")
-	util.create_input_args(parser)
-	util.create_output_args(parser, suffix='-rated.csv')  # TODO: not used
+	utils.create_input_args(parser)
+	utils.create_output_args(parser, suffix='-rated.csv')  # TODO: not used
 	parser.add_argument("domain_csv", help="CSV containing domains and metadata")
 	parser.add_argument("--verbose", action="store_true", help="Disable progress bar")
 	args = parser.parse_args()
 
-	input_files = util.parse_input_files_arg(args.input_file, ext=".txt")
+	input_files = utils.parse_input_files_arg(args.input_file, ext=".txt")
 
 	for input_path in input_files:
 		process_file(input_path, args.domain_csv, f"{os.path.splitext(input_path)[0]}-rated.csv", args.verbose)
