@@ -69,6 +69,107 @@ def make_urgellplot_zoomed(nodes, colormap='cool', suptitle=None, cax=None, ysca
 	plt.show()
 	return None
 
+
+def make_urgellplot_D(nodes, colormap='cool', suptitle=None, cax=None, yscale='linear', filename=None, region=0.2):
+	assert (len(nodes) > 0)
+
+	# sort by pi, then d
+	nodes = sorted(nodes, key=lambda n: (-n.D))
+
+	N = len(nodes)
+	x = [i / (N - 1) if N > 1 else 0.5 for i in range(N)]  # 0..1 inclusive
+
+	cmap = plt.get_cmap(colormap)
+	norm = Normalize(vmin=min(n.D for n in nodes), vmax=max(n.D for n in nodes))
+	D_colours = [cmap(norm(n.D)) for n in nodes]
+
+	# For bar centers across [0,1], use centers and width:
+	D_bars_centers = [(i + 0.5) / N for i in range(N)]
+	D_bars_width = 1.0 / N
+
+	D_bars_height = [n.D for n in nodes]
+	# do the plot
+	if cax == None:
+		fig = plt.figure(figsize=(20, 10), facecolor='w')
+		ax = fig.add_subplot(111)
+	else:
+		ax = cax
+
+	ax.bar(D_bars_centers, D_bars_height, width=D_bars_width, color=D_colours)
+
+	# Set 9 evenly spaced ticks from 0 to region (inclusive)
+	num_ticks = 9
+	xticks = [region * i / (num_ticks - 1) for i in range(num_ticks)]
+	ax.set_xticks(xticks)
+	ax.set_xticklabels([f"{tick:.3g}" for tick in xticks])
+	ax.set_xlim((0, region))
+
+	ax.yaxis.tick_left()
+	ax.yaxis.grid()
+
+	ax.set_yscale(yscale)
+
+	if suptitle is not None:
+		ax.set_title(suptitle)
+
+	# Display inline in notebook; only save if a filename is provided
+	ax.set_xlabel('Proportion')
+	ax.set_ylabel('D')
+	if filename is not None:
+		plt.savefig(filename, dpi=300, bbox_inches='tight')
+	plt.show()
+	return None
+
+def make_urgellplot_S(nodes, colormap='cool', suptitle=None, cax=None, yscale='linear', filename=None, region=0.2):
+	assert (len(nodes) > 0)
+
+	# sort by pi, then d
+	nodes = sorted(nodes, key=lambda n: (-n.S, -n.D))
+
+	N = len(nodes)
+	x = [i / (N - 1) if N > 1 else 0.5 for i in range(N)]  # 0..1 inclusive
+
+	cmap = plt.get_cmap(colormap)
+	norm = Normalize(vmin=min(n.S for n in nodes), vmax=max(n.S for n in nodes))
+	S_colours = [cmap(norm(n.S)) for n in nodes]
+
+	# For bar centers across [0,1], use centers and width:
+	S_bars_centers = [(i + 0.5) / N for i in range(N)]
+	S_bars_width = 1.0 / N
+	S_bars_height = [n.S for n in nodes]
+	# do the plot
+	if cax == None:
+		fig = plt.figure(figsize=(20, 10), facecolor='w')
+		ax = fig.add_subplot(111)
+	else:
+		ax = cax
+
+	ax.bar(S_bars_centers, S_bars_height, width=S_bars_width, color=S_colours)
+
+	# Set 9 evenly spaced ticks from 0 to region (inclusive)
+	num_ticks = 9
+	xticks = [region * i / (num_ticks - 1) for i in range(num_ticks)]
+	ax.set_xticks(xticks)
+	ax.set_xticklabels([f"{tick:.3g}" for tick in xticks])
+	ax.set_xlim((0, region))
+
+	ax.yaxis.tick_left()
+	ax.yaxis.grid()
+
+	ax.set_yscale(yscale)
+
+	if suptitle is not None:
+		ax.set_title(suptitle)
+
+	# Display inline in notebook; only save if a filename is provided
+	ax.set_xlabel('Proportion')
+	ax.set_ylabel('S')
+	if filename is not None:
+		plt.savefig(filename, dpi=300, bbox_inches='tight')
+	plt.show()
+	return None
+
+
 def make_urgellplot(nodes, colormap='cool', suptitle=None, cax=None, yscale='linear', filename=None):
 
 	assert(len(nodes) > 0)
@@ -320,10 +421,15 @@ if __name__ == "__main__":
 					print("Plotting Community " + str(comm) + " (n=" + str(len(value)) + ")")
 					suptitle = "Community "+str(comm)+" (n="+str(len(value))+")"
 					if args.merge_plots:
-						output_file = f'{output_path}-all_communities_plot.png'
+						if args.S:
+							output_file = f'{output_path}-all_communities_S_plot.png'
+							make_urgellplot_S(value, suptitle="S values for "+suptitle, filename=output_file, region=1, cax=merge_axes[idx] if len(merge_axes) else None)
+						elif args.D:
+							output_file = f'{output_path}-all_communities_D_plot.png'
+							make_urgellplot_D(value, suptitle="D values for " + suptitle, filename=output_file, region=1, cax=merge_axes[idx] if len(merge_axes) else None)
 					else:
 						output_file = f'{output_path}_{comm}-urgell_plot_zoomed.png'
-					make_urgellplot_zoomed(value, suptitle=suptitle, filename=output_file, region=args.zoom, cax=merge_axes[idx] if len(merge_axes) else None)
+					#make_urgellplot_zoomed(value, suptitle=suptitle, filename=output_file, region=args.zoom, cax=merge_axes[idx] if len(merge_axes) else None)
 					print(f"Saved community {comm} plot to {output_file}")
 
 
