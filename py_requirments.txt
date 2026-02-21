@@ -1,0 +1,11 @@
+numpy
+tqdm
+bertopic
+sentence_transformers
+scikit-learn
+pandas
+psutil
+pymongo
+networkx
+igraph
+matplotlib
