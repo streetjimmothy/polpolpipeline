@@ -4,6 +4,8 @@ import csv
 from collections import defaultdict
 from dataclasses import dataclass
 from collections import Counter, defaultdict
+import matplotlib
+matplotlib.use("Agg")  
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.colors import Normalize
@@ -40,8 +42,8 @@ def make_urgellplot_zoomed(nodes, colormap='cool', suptitle=None, cax=None, ysca
 	ax.bar(π_bars_centers,π_bars_height,width=π_bars_width,color=D_colours)
 	ax.plot(x,S_line,c='k')
 
-	# Set 6 evenly spaced ticks from 0 to region (inclusive)
-	num_ticks = 8
+	# Set 10 evenly spaced ticks from 0 to 1
+	num_ticks = 11
 	xticks = [region * i / (num_ticks - 1) for i in range(num_ticks)]
 	ax.set_xticks(xticks)
 	ax.set_xticklabels([f"{tick:.3g}" for tick in xticks])
@@ -66,7 +68,8 @@ def make_urgellplot_zoomed(nodes, colormap='cool', suptitle=None, cax=None, ysca
 	ax.set_ylabel('S/pi')
 	if filename is not None:
 		plt.savefig(filename, dpi=300, bbox_inches='tight')
-	plt.show()
+	else:
+		plt.show()
 	return None
 
 def make_urgellplot(nodes, colormap='cool', suptitle=None, cax=None, yscale='linear', filename=None):
@@ -212,11 +215,13 @@ if __name__ == "__main__":
 	utils.create_input_args(parser, ext=".csv")
 	utils.create_output_args(parser, suffix="{plot_type}_{plot_community}.png")	#TODO: This isn't actually used properly yet
 	parser.add_argument("-c", "--community", type=int, default=-1, help="Community to plot for (Special Values: -1 (default) - entire file is treated as one community; -2 - iterates over each community and plots each seperately). Will error if the input file does not have a community column.")
-	parser.add_argument("-z", "--zoom", type=float, default=0.2, help="Zoom region for urgell plot (default 0.2 = 20% of the x axis). Only applies to urgell plots.")
+	parser.add_argument("-z", "--zoom", type=float, default=0.2, help="Zoom region for urgell plot (default 0.2 = 20%% of the x axis). Only applies to urgell plots.")
 	parser.add_argument("-p", "--plot_type", type=str, default="urgell", choices=["urgell", "sullivan"], help="Type of plot to generate (default: urgell).")
 	parser.add_argument("-m", "--merge_plots", action='store_true', help="If set, merges all community plots into a single plot (only applicable when plotting all communities).")
 	parser.add_argument("-d", "--max-degree", type=int, default=9, help="Maximum degree to consider when plotting (default: 9). Nodes with degree higher than this will be treated as having this degree.")
-	parser.add_argument("--comm-min", type=community_min_param, default=0.0, help="Threshold for communities to plot. If n<1, plot all communites larger than n% of the total graph size. If n>1 plot n largest communities (default: 0.0, plot all).")
+	parser.add_argument("--comm-min", type=community_min_param, default=0.0, help="Threshold for communities to plot. If n<1, plot all communites larger than n%% of the total graph size. If n>1 plot n largest communities (default: 0.0, plot all).")
+	parser.add_argument("--community-info",type=str,required=True,help="Path to a json file with community name and colour info")
+
 
 	args = parser.parse_args()
 	
@@ -315,8 +320,8 @@ if __name__ == "__main__":
 					make_urgellplot_zoomed(value, suptitle=suptitle, filename=output_file, region=args.zoom, cax=None)
 					print(f"Saved entire graph plot to {output_file}")
 				elif args.community == comm or args.community == -2:
-					print("Plotting Community " + str(comm) + " (n=" + str(len(value)) + ")")
-					suptitle = "Community "+str(comm)+" (n="+str(len(value))+")"
+					print(f"Plotting Community {str(comm)}: {utils.get_community_label(comm, args.community_info)} (n={str(len(value))})")
+					suptitle = f"{utils.get_community_label(comm, args.community_info)} (n={str(len(value))})"
 					if args.merge_plots:
 						output_file = f'{output_path}-all_communities_plot.png'
 					else:
