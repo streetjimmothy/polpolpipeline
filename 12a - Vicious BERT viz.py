@@ -10,7 +10,7 @@ import seaborn as sns
 
 def plot(ax, input_path, community_info, columns, spectrum=False):
 	sentiment_weights = np.linspace(-1, 1, len(columns))
-	
+
 	comm_number = re.search(r'\d+', input_path).group(0)
 	comm_name = utils.get_community_label(comm_number, community_info)
 	data = {}
@@ -50,13 +50,12 @@ def plot(ax, input_path, community_info, columns, spectrum=False):
 				color=utils.get_community_colour(comm_name, community_info),
 			)
 
+
 if __name__ == "__main__":
-	parser = argparse.ArgumentParser(description="Plots an existing RoBERTa output from a csv.")
-	utils.create_input_args(parser, ext=".csv", help="Input CSV file(s) containing RoBERTa output data.")
+	parser = argparse.ArgumentParser(description="Plots an existing Vicious BERT output from a csv.")
+	utils.create_input_args(parser, ext=".csv", help="Input CSV file(s) containing Vicious BERT output data.")
 	utils.create_output_args(parser, suffix="{plot_type}_{plot_community}.png")  # TODO: This isn't actually used properly yet
-	parser.add_argument("-c", "--columns", type=str, required=False, help="Columns to plot for. Comma-separated list of column names from the CSV file. Defaults to all columns except the first")
-	parser.add_argument("-s", "--spectrum", action="store_true", help="Whether to plot the values as a spectrum. If true, the leftmost column arg will be the low end of the spectrum, and the rightmost column arg the high end.")
-	parser.add_argument("--community-colours",type=str,required=False,help="Path to a json file mapping community labels to colours, otherwise default colours will be used.")
+	parser.add_argument("--community-colours", type=str, required=False, help="Path to a json file mapping community labels to colours, otherwise default colours will be used.")
 
 	args = parser.parse_args()
 
@@ -65,10 +64,10 @@ if __name__ == "__main__":
 	input_paths = utils.parse_input_files_arg(args.input_file, ext=".csv")
 	output_paths = utils.parse_output_files_arg(args.output, input_paths)
 
-	fig = plt.figure(figsize=(20,10),facecolor='w')
+	fig = plt.figure(figsize=(20, 10), facecolor='w')
 	ax = fig.add_subplot(111)
 	if args.spectrum:
-		plt.title("Histogram of Sentiment Scores as a Continuum")
+		plt.title("Histogram of Vicious BERT Scores as a Continuum")
 		plt.xlabel("Continuum Score (-1 = Strong Negative, 1 = Strong Positive)")
 	else:
 		if args.columns:
@@ -87,14 +86,13 @@ if __name__ == "__main__":
 	else:
 		columns = [col.strip() for col in args.columns.split(",")]
 
-	
 	for input_path in input_paths:
 		plot(
-			ax=ax, 
-			input_path=input_path, 
+			ax=ax,
+			input_path=input_path,
 			community_info=args.community_colours if args.community_colours else None,
-			columns = columns,
-			spectrum = args.spectrum
+			columns=columns,
+			spectrum=args.spectrum
 		)
 
 	plt.legend(title="Communities")

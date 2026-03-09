@@ -16,7 +16,7 @@ from sklearn.decomposition import PCA
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 from tqdm.auto import tqdm
 
-import utilities as util
+import utilities as utils
 
 
 def fit_lda(

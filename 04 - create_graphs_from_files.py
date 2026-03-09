@@ -1,10 +1,12 @@
+
 import time
 import humanize
 import psutil
 import json
 import os
 import argparse
-import utilities as util
+import utilities as utils
+from tqdm import tqdm
 
 #import modules used for network analysis
 import networkx as nx
@@ -37,7 +39,7 @@ def create_nx_graph(tweets_json, connections_to_keep=["retweet", "reply", "quote
 	nx_g = nx.DiGraph()
 	print("building networkx graph...")
 	start_time = time.time()
-	for tweet in tweets_json:
+	for tweet in tqdm(tweets_json, desc="Building graph"):
 		if tweet["user_id"] not in nx_g:
 			nx_g.add_node(tweet["user_id"])
 		
@@ -45,11 +47,11 @@ def create_nx_graph(tweets_json, connections_to_keep=["retweet", "reply", "quote
 			nx_g.add_node(tweet["connected_user"])
 		
 		if tweet["connected_user"] != tweet["user_id"] and tweet["connection_type"] in connections_to_keep:
-			if tweet["connected_user"] not in nx_g[tweet["user_id"]]:
-				nx_g.add_edge(tweet["user_id"], tweet["connected_user"], weight=1, tweets=[tweet["tweet_id"]])
+			if tweet["user_id"] not in nx_g[tweet["connected_user"]]:
+				nx_g.add_edge(tweet["connected_user"], tweet["user_id"], weight=1, tweets=[tweet["tweet_id"]])
 			else:
-				nx_g[tweet["user_id"]][tweet["connected_user"]]['weight'] += 1
-				nx_g[tweet["user_id"]][tweet["connected_user"]]['tweets'].append(tweet["tweet_id"])
+				nx_g[tweet["connected_user"]][tweet["user_id"]]['weight'] += 1
+				nx_g[tweet["connected_user"]][tweet["user_id"]]['tweets'].append(tweet["tweet_id"])
 	end_time = time.time()
 	print("Time taken: {}".format(humanize.precisedelta(end_time - start_time, suppress=['days', 'milliseconds', 'microseconds'])))
 	print("Memory used: {}".format(humanize.naturalsize(psutil.Process().memory_info().rss)))
@@ -104,7 +106,7 @@ def prune_graph(graph, min_connections=2, min_weight=1, max_iterations=-1, conne
 		# this part directly from paper
 		# but accomodate directed and undirected graphs
 		#nx_communities is guaranteed to be directed
-		for node in nx_pruned:
+		for node in tqdm(list(nx_pruned), desc=f"Pruning nodes (iter {iteration})"):
 			i = nx_pruned.in_degree(node)
 			o = nx_pruned.out_degree(node)
 			if i + o <= threshold:
@@ -116,7 +118,7 @@ def prune_graph(graph, min_connections=2, min_weight=1, max_iterations=-1, conne
 
 		# then do the weighted-edge culling
 		edges_to_cut = []
-		for edge in nx_pruned.edges:
+		for edge in tqdm(list(nx_pruned.edges), desc=f"Pruning edges (iter {iteration})"):
 			try:
 				if len(nx_pruned.edges[edge]["tweets"]) <= weight_threshold:
 					edges_to_cut.append(edge)
@@ -140,8 +142,8 @@ def prune_graph(graph, min_connections=2, min_weight=1, max_iterations=-1, conne
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="creates a graph from tweets in a JSON file")
-	util.create_input_args(parser, ext=".json")
-	util.create_output_args(parser, suffix="{full|{cc_type}_pruned}.graphml")
+	utils.create_input_args(parser, ext=".json")
+	utils.create_output_args(parser, suffix="{full|{cc_type}_pruned}.graphml")
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
 	prune_group = parser.add_argument_group('Graph Buiding Options')
 	parser.add_argument("--connection_types","--types", nargs='+', default=["retweet", "reply", "quote"], help="Types of connections to include in the graph (default: retweet, reply, quote)")
@@ -157,7 +159,7 @@ if __name__ == "__main__":
 
 	start_time = time.time()
 
-	input_files = util.parse_input_files_arg(args.input_file, ext=".json")
+	input_files = utils.parse_input_files_arg(args.input_file, ext=".json")
 	print(f"Output file base: {args.output}")
 
 	tweets_json = load_tweets_from_json(input_files)

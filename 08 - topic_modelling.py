@@ -1,6 +1,6 @@
 import os
 import argparse
-import utilities as util
+import utilities as utils
 import importlib.util
 from pathlib import Path
 from tqdm import tqdm

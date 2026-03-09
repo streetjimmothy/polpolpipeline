@@ -14,7 +14,7 @@ import leidenalg
 from pymongo import MongoClient, errors
 CONNECTION_STRING = "mongodb://JamIs:morticiaetpollito@118.138.244.29:27017/"
 
-import utilities as util
+import utilities as utils
 
 def print_community_stats(community_graph, main_graph, min_major_community_size=5):
 	# Get all subgraphs
@@ -216,11 +216,11 @@ def save_central_tweets(
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="Runs community detection. Optionally saves central tweets to a file.")
-	util.create_input_args(parser, help="Path to the input graphml file (multiple files can be specified, the process will be run for each and they will be saved to the specified output file - or, if no output file is specified each will be saved back to the input file. A directory can also be specified, in which case all graphml files in that directory will be used)")
-	util.create_output_args(parser, suffix=".graphml (i.e. save back to input file)")
+	utils.create_input_args(parser, help="Path to the input graphml file (multiple files can be specified, the process will be run for each and they will be saved to the specified output file - or, if no output file is specified each will be saved back to the input file. A directory can also be specified, in which case all graphml files in that directory will be used)")
+	utils.create_output_args(parser, suffix=".graphml (i.e. save back to input file)")
 	
 	parser.add_argument("--save-central-tweets", type=int, default=0, help="Save central tweets to a file (number of users to save tweets for, default: 0, which means no tweets will be saved. -1 will save all tweets in each community). Tweets will be saved to the output file with '_{n}central_{community_size_ranking}comm.csv' appended to the filename.")
-	parser.add_argument("--community-size", type=int, default=5, help="Size of a community to consider, as a percentage of the total graph (default: 5%%). Communities smaller than this size will not be considered for central tweets extraction.")
+	parser.add_argument("--community-size", type=int, default=5, help="Size of a community to consider, as a percentage of the total graph (default: 5%). Communities smaller than this size will not be considered for central tweets extraction.")
 	parser.add_argument("--target-community", type=int, default=-1, help="If specified, only save tweets from this community (default: -1, which means all communities will be processed). 0 indexed.")
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
 	parser.add_argument("-db", "--db",required=False, help="Database connection string override (default: connects to Nectar MongoDB instance)")
@@ -237,8 +237,8 @@ if __name__ == "__main__":
 		CONNECTION_STRING = args.db
 
 	start_time = time.time()
-	input_files = util.parse_input_files_arg(args.input_file, ext=".graphml")
-	output_files = util.parse_output_files_arg(args.output, input_files)
+	input_files = utils.parse_input_files_arg(args.input_file, ext=".graphml")
+	output_files = utils.parse_output_files_arg(args.output, input_files)
 
 	for input_file, output_file in zip(input_files, output_files):
 		if not os.path.exists(input_file):

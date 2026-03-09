@@ -5,9 +5,9 @@ import os
 def create_input_args(parser: argparse.ArgumentParser, ext:str = "txt", help: str | None = None) -> None:
 	parser.add_argument(
 		"-i",
-		"--input_file",
-		"--input_files",
-		"--input_dir",
+		"--input-file",
+		"--input-files",
+		"--input-dir",
 		nargs='+',
 		required=True,
 		help=help if help is not None else f"Path to the input {ext} file (multiple files can be specified, they will be process in turn. A directory can also be specified, in which case all {ext} files in that directory will be used)"
@@ -34,7 +34,7 @@ def parse_input_files_arg(input_files: list[str] | str, ext: str | None =None) -
 		return input_files
 	else:
 		if os.path.isdir(input_files[0]):
-			# If a directory is specified, get all JSON files in that directory
+			# If a directory is specified, get all ext files in that directory
 			_input_files = []
 			for f in os.listdir(input_files[0]):
 				if ext is None or f.lower().endswith(ext.lower()):

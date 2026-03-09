@@ -5,7 +5,7 @@ import json
 import os
 import argparse
 import networkx as nx
-import utilities as util
+import utilities as utils
 
 def load_tweets_from_json(file_paths):
 	"""
@@ -70,7 +70,7 @@ def save_nx_graph(graph, filename):
 #at one point community detection is igraph stripped the tweet ids from edges, this re-adds them
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="adds tweet ids to edges in a networkx graph")
-	util.create_input_args(parser, ext=".json")
+	utils.create_input_args(parser, ext=".json")
 	parser.add_argument("-o", "--output_file","--output_files", nargs='+', required=True, help="Path to save the graph (if the graph already exists, it will just have the tweet ids added to the edges). Multiple graphs can be supplied, they will be processed seperately from the same input files.")
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
 
@@ -78,7 +78,7 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 
 	start_time = time.time()
-	input_files = util.parse_input_files_arg(args.input_file, ext=".json")
+	input_files = utils.parse_input_files_arg(args.input_file, ext=".json")
 
 	if not args.output_file:
 		print("No output file specified")
