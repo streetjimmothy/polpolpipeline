@@ -25,8 +25,8 @@ def run_bertopic(
 	print("Running BERTopic with batched embeddings...")
 
 	# Parameters
-	batch_size = 256  # You can adjust this based on your GPU/CPU RAM
-	embedder = SentenceTransformer('all-MiniLM-L6-v2', device='cuda')
+	batch_size = 512  # You can adjust this based on your GPU/CPU RAM
+	embedder = SentenceTransformer('/scratch/mf93/jb3012/polpol/polpolpipeline/models/sentence-transformers/all-MiniLM-L6-v2', device='cuda')
 
 	ctfidf_model = ClassTfidfTransformer(reduce_frequent_words=True)
 
@@ -38,10 +38,11 @@ def run_bertopic(
 		min_cluster_size=int(min_cluster_size),
 		metric='euclidean',
 		cluster_selection_method='eom',
-		prediction_data=False
+		prediction_data=False,
+		min_samples=20
 	)
 
-	umap_model = UMAP(n_neighbors=15, n_components=5, metric='euclidean')
+	umap_model = UMAP(n_neighbors=10, n_components=4, metric='euclidean')
 
 	topic_model = BERTopic(
 		embedding_model=None,  # We'll pass precomputed embeddings
