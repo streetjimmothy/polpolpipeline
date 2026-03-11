@@ -152,9 +152,9 @@ def load_stopwords(custom_path: Path | None):
 
 def main():
 	parser = argparse.ArgumentParser(description="Topic Modelling multirunner")
-	utils.create_input_args(parser)
-	utils.create_output_args(parser, suffix='{.csv|.png|.html}', help="Directory to save output plots and CSVs. Each stage will create its own subdirectory inside this directory")
-	parser.add_argument("--stop_words", required=False, help="Custom stopwords list to use")
+	util.create_input_args(parser)
+	util.create_output_args(parser, suffix='{.csv|.png|.html}', help="Directory to save output plots and CSVs. Each stage will create its own subdirectory inside this directory")
+	parser.add_argument("--stop-words", required=False, help="Custom stopwords list to use")
 	parser.add_argument("--min-df", type=int, default=5, help="Minimum document frequency for CountVectorizer (default: 5)")
 	parser.add_argument("--max-df", type=float, default=0.7, help="Maximum document frequency ratio (default: 0.7)")
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
@@ -162,8 +162,8 @@ def main():
 	parser.add_argument("--max_topics", type=int, default=10, help="Maximum number of topics to reduce to (default: 10)")
 	args = parser.parse_args()
 
-	input_files = utils.parse_input_files_arg(args.input_file, ext="-denoised.txt")
-	output_files = utils.parse_output_files_arg(args.output, input_files)
+	input_files = util.parse_input_files_arg(args.input_file, ext="-deduped.txt")
+	output_files = util.parse_output_files_arg(args.output, input_files)
 
 	stopwords = ENGLISH_STOP_WORDS
 	if (args.stop_words):
@@ -182,21 +182,21 @@ def main():
 
 	scripts = {
 		"08a - BERTopic.py" : {
-				"min_cluster_size": 150,
+				"min_cluster_size": 500,
 				"max_topics": args.max_topics
 			},
-		"08b - LDA.py" : {
-			"num_topics": args.max_topics,
-			"max_iterations": 100
-		},
-		"08c - LDA_BERTopic.py": {
-			"num_topics": args.max_topics,
-			"max_iterations": 100
-		},
-		"08d - BERTopic_LDA_clustering.py" : {
-			"num_topics": args.max_topics,
-			"max_iterations": 100
-		},
+		# "08b - LDA.py" : {
+		# 	"num_topics": args.max_topics,
+		# 	"max_iterations": 100
+		# },
+		# "08c - LDA_BERTopic.py": {
+		# 	"num_topics": args.max_topics,
+		# 	"max_iterations": 100
+		# },
+		# "08d - BERTopic_LDA_clustering.py" : {
+		# 	"num_topics": args.max_topics,
+		# 	"max_iterations": 100
+		# },
 	}
 
 	
