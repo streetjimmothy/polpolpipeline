@@ -5,13 +5,19 @@ import os
 from tqdm import tqdm
 
 def process_file(input_path: Path, output_path: Path, verbose: bool = False) -> None:
-	with open(input_path, 'r', encoding='utf-8') as f:
+	with open(input_path, 'r', encoding='utf-8', errors='replace') as f:
 		if verbose:
 			lines = [line for line in tqdm(f, desc=f"Reading {input_path.name}", unit="lines")]
 		else:
 			lines = f.readlines()
+	
 	if verbose:
 		print(f"Total lines: {len(lines)}")
+		bad_char_count = 0
+		for line in lines:
+			if '\ufffd' in line:
+				bad_char_count += 1
+		print(f"Lines with bad characters: {bad_char_count} ({bad_char_count / len(lines) * 100:.2f}%)")
 	deduped_lines = utils.deduplicate_list(lines)
 	if verbose:
 		print(f"Total unique lines: {len(deduped_lines)}")
@@ -25,11 +31,11 @@ def process_file(input_path: Path, output_path: Path, verbose: bool = False) -> 
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="Deduplicate lines in a text file or csv.")
-	utils.create_input_args(parser, ext="-denoised.[csv|txt]")	#TODO: proper csv support 
+	utils.create_input_args(parser, ext="-cleaned-denoised.[csv|txt]")	#TODO: proper csv support 
 	utils.create_output_args(parser, suffix='-deduped.[csv|txt]')  # TODO: not used
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
 
 	args = parser.parse_args()
-	input_files = utils.parse_input_files_arg(args.input_file, ext="-denoised.txt")
+	input_files = utils.parse_input_files_arg(args.input_file, ext="-resolved-denoised.txt")
 	for input_path in input_files:
 		process_file(Path(input_path), Path(f"{os.path.splitext(input_path)[0]}-deduped.txt"), verbose=args.verbose)
