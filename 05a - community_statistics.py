@@ -33,6 +33,14 @@ def print_community_stats(community_graph, main_graph, min_major_community_size=
 		print(f" Density: {density:.4f}")
 		print(f" Average Clustering Coefficient: {avg_clustering:.4f}")
 
+def print_wcc_stats(graph):
+	wccs = list(nx.weakly_connected_components(graph))
+	wcc_sizes = [len(wcc) for wcc in wccs]
+	largest_wcc = max(wccs, key=len)
+	largest_wcc_size = max(wcc_sizes)
+	print(f"\nNumber of weakly connected components: {len(wccs)}")
+	print(f"Size of largest weakly connected component: {largest_wcc_size} nodes ({(largest_wcc_size / graph.number_of_nodes()) * 100:.2f}% of total graph)")
+	print(f"Number of tweets of largest weakly connected component: {sum(graph.edges[n].get('weight', 0) for n in graph.edges() if n[0] in wccs[wcc_sizes.index(largest_wcc_size)] and n[1] in wccs[wcc_sizes.index(largest_wcc_size)])}")
 
 
 if __name__ == "__main__":
@@ -40,7 +48,7 @@ if __name__ == "__main__":
 	utils.create_input_args(parser, ext=".graphml")
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
 	parser.add_argument("--community_label", "-C", help="Label attribute for community detection (default: 'community')", default="community")
-	parser.add_argument("--community-size", type=int, default=5, help="Size of a community to consider, as a percentage of the total graph (default: 5%).")
+	parser.add_argument("--community-size", type=int, default=5, help="Size of a community to consider, as a percentage of the total graph (default: 5%%).")
 
 	args = parser.parse_args()
 
@@ -55,7 +63,10 @@ if __name__ == "__main__":
 		G = nx.read_graphml(input_path)
 		if args.verbose:
 			print(f"Graph loaded with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges.")
+			print(f"Number of tweets in graph: {sum(G.edges[n].get('weight', 0) for n in G.edges())}")
 		attr_values = nx.get_node_attributes(G, args.community_label)
+
+		print_wcc_stats(G)
 
 		communities_by_attr = defaultdict(set)
 		for node, value in attr_values.items():
