@@ -1,6 +1,7 @@
 import numpy as np
 import json
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import csv
 import os
 import argparse
@@ -9,16 +10,18 @@ community_data = {}
 averages = {}
 
 plots_to_generate = {
-	#"Summary Variables": ['LIWC22.Analytic', 'LIWC22.Clout', 'LIWC22.Authentic', 'LIWC22.Tone'],
+	"Summary Variables": ['LIWC22.Analytic', 'LIWC22.Clout', 'LIWC22.Tone'],  # 'LIWC22.Authentic',
 	"Dictionary Statistics": ['LIWC22.WC', 'LIWC22.WPS', 'LIWC22.BigWords', 'LIWC22.Dic'],
+	"Basic": ['LIWC22.Affect', 'LIWC22.Cognition', 'LIWC22.Social', 'LIWC22.socrefs'],
+	"Extended": ['LIWC22.Culture', 'LIWC22.Lifestyle', 'LIWC22.Physical', 'LIWC22.health', 'LIWC22.mental', 'LIWC22.Perception', 'LIWC22.Conversation', 'LIWC22.time'],
 	#"Linguistic Dimensions": ['LIWC22.Linguistic', 'LIWC22.function', 'LIWC22.pronoun', 'LIWC22.ppron', 'LIWC22.i', 'LIWC22.we', 'LIWC22.you', 'LIWC22.shehe', 'LIWC22.they', 'LIWC22.ipron', 'LIWC22.det', 'LIWC22.article', 'LIWC22.number', 'LIWC22.prep', 'LIWC22.auxverb', 'LIWC22.adverb', 'LIWC22.conj', 'LIWC22.negate', 'LIWC22.verb', 'LIWC22.adj', 'LIWC22.quantity'],
 	#"Drives": ['LIWC22.Drives', 'LIWC22.affiliation', 'LIWC22.achieve', 'LIWC22.power'],
-	#"Cognition": ['LIWC22.allnone', 'LIWC22.cogproc', 'LIWC22.insight', 'LIWC22.cause', 'LIWC22.discrep', 'LIWC22.tentat', 'LIWC22.certitude', 'LIWC22.differ', 'LIWC22.memory'],
+	"Cognition": ['LIWC22.allnone', 'LIWC22.cogproc', 'LIWC22.insight', 'LIWC22.cause', 'LIWC22.discrep', 'LIWC22.tentat', 'LIWC22.certitude', 'LIWC22.differ', 'LIWC22.memory'],
 	#"Affect": ['LIWC22.Affect', 'LIWC22.tone_pos', 'LIWC22.tone_neg', 'LIWC22.emotion', 'LIWC22.emo_pos', 'LIWC22.emo_neg', 'LIWC22.emo_anx', 'LIWC22.emo_anger', 'LIWC22.emo_sad', 'LIWC22.swear'],
 	"Affect": ['LIWC22.Affect', 'LIWC22.EmoPos', 'LIWC22.EmoNeg', 'LIWC22.Anxiety', 'LIWC22.Anger', 'LIWC22.Sad'],	##ARG/ES/2007
 	#"Social": ['LIWC22.Social', 'LIWC22.socbehav', 'LIWC22.prosocial', 'LIWC22.polite', 'LIWC22.conflict', 'LIWC22.moral', 'LIWC22.comm'],
 	"Social": ['LIWC22.Social', 'LIWC22.Family', 'LIWC22.Friends', 'LIWC22.Humans'],  # ARG/ES/2007
-	#"Social References": ['LIWC22.socrefs', 'LIWC22.family', 'LIWC22.friend', 'LIWC22.female', 'LIWC22.male'],
+	"Social References": ['LIWC22.socrefs', 'LIWC22.family', 'LIWC22.friend', 'LIWC22.female', 'LIWC22.male'],
 	#"Culture": ['LIWC22.Culture', 'LIWC22.politic', 'LIWC22.ethnicity', 'LIWC22.tech'],
 	#"Lifestyle": ['LIWC22.Lifestyle', 'LIWC22.leisure', 'LIWC22.home', 'LIWC22.work', 'LIWC22.money', 'LIWC22.relig'],
 	#"Physical": ['LIWC22.Physical', 'LIWC22.health', 'LIWC22.illness', 'LIWC22.wellness', 'LIWC22.mental', 'LIWC22.substances', 'LIWC22.sexual', 'LIWC22.food', 'LIWC22.death'],
@@ -76,7 +79,21 @@ plots_to_generate = {
 		"personal-values.Achievement",
 		"personal-values.Power",
 	],
-
+	"Moral Foundations": [
+		"moral-foundations.Care_Virtue",
+		"moral-foundations.Care_Vice",
+		"moral-foundations.Fairness_Virtue",
+		"moral-foundations.Fairness_Vice",
+		"moral-foundations.Loyalty_Virtue",
+		"moral-foundations.Loyalty_Vice",
+		"moral-foundations.Authority_Virtue",
+		"moral-foundations.Authority_Vice",
+		"moral-foundations.Sanctity_Virtue",
+		"moral-foundations.Sanctity_Vice",
+	],
+	"Threat": [
+		"threat.Threat"
+	],
 }
 
 
@@ -176,31 +193,33 @@ def plot_variance(
 	for label in labels:
 		_labels[label] = {"dic": label.split('.')[0], "label": label.split('.')[1]}
 
-	baseline = [1] * len(labels)
-
-	label_variance = {}
-	std_devs_pos = []
-	std_devs_neg = []
+	label_zscores = {}
+	sd_bars = []  # ±1 std dev bar heights per label position (1 where sd known, 0 otherwise)
 	for label in labels:
 		_dic = _labels[label]['dic']
 		_label = _labels[label]['label']
+		avg = averages.get(label, 0)
+
+		# Prefer pre-defined population std dev; fall back to sample std dev across communities
+		if _label in std_devs:
+			sd = std_devs[_label]
+		else:
+			values = [data[_dic].get(_label, 0) for _, data in community_data.items() if _dic in data]
+			sd = float(np.std(values)) if len(values) > 1 else 0.0
+
 		for community, data in community_data.items():
 			if _dic not in data:
 				continue
-			if community not in label_variance:
-				label_variance[community] = []
-			var = (data[_dic].get(_label, 0) / averages[label]) if averages[label] != 0 else 1
-			label_variance[community].append(var)
-		if include_steddev:
-			if _label not in std_devs:
-				std_devs_pos.append(0)
-				std_devs_neg.append(0)
-			else:
-				std_devs_pos.append(std_devs[_label] / averages[label])
-				std_devs_neg.append(-std_devs[_label] / averages[label])
+			if community not in label_zscores:
+				label_zscores[community] = []
+			value = data[_dic].get(_label, 0)
+			z = (value - avg) / sd if sd != 0 else 0.0
+			label_zscores[community].append(z)
 
-	offset = np.arange(len(label_variance))
-	offset = (offset - np.mean(offset)) / (2 * len(label_variance))
+		sd_bars.append(1.0 if sd != 0 else 0.0)
+
+	offset = np.arange(len(label_zscores))
+	offset = (offset - np.mean(offset)) / (2 * len(label_zscores))
 
 	# Plot
 
@@ -220,28 +239,49 @@ def plot_variance(
 		dpi=160
 	)
 	ax = fig.add_subplot(111)
-	ax.plot(x, baseline, '_', color='black', markersize=100 * len(labels))
-	for idx, (community, variances) in enumerate(label_variance.items()):
+	ax.axhline(0, color='black', linewidth=0.8)
+	legend_handles = []
+	for idx, (community, zscores) in enumerate(label_zscores.items()):
+		color = community_colour_mappings[community]
 		stem = ax.stem(
 			x + offset[idx],
-			variances,
+			zscores,
 			linefmt='-',
 			basefmt=' ',
-			bottom=1,
+			bottom=0,
 		)
-		plt.setp(stem.markerline, color=community_colour_mappings[community])
-	ax.set_ylabel('Variance from Average')
+		plt.setp(stem.markerline, color=color)
+		plt.setp(stem.stemlines, color=color)
+		legend_handles.append(Line2D([0], [0], color=color, marker='o', linestyle='-', label=community))
+	#ax.legend(handles=legend_handles, fontsize='xx-small')	#legend is too big to fit around the data
+	ax.set_ylabel('Z-score (std. deviations from mean)')
 	ax.set_title(f'{title}')
+	all_zscores = [z for zscores in label_zscores.values() for z in zscores]
+	max_abs = max(abs(z) for z in all_zscores) * 1.1 if all_zscores else 1.0
 	ax.set(
 		xlim=(0, len(labels)),
 		xticks=x,
 		xticklabels=labels,
-		ylim=(0, 2)
+		ylim=(-max_abs, max_abs),
 	)
 
+	# Auto-adjust x-axis labels to prevent overlap
+	fig.canvas.draw()
+	tick_labels = ax.get_xticklabels()
+	bboxes = [label.get_window_extent() for label in tick_labels]
+	overlapping = any(bboxes[i].overlaps(bboxes[i + 1]) for i in range(len(bboxes) - 1))
+	if overlapping:
+		plt.setp(tick_labels, rotation=45, ha='right', fontsize='small')
+		fig.canvas.draw()
+		bboxes = [label.get_window_extent() for label in tick_labels]
+		still_overlapping = any(bboxes[i].overlaps(bboxes[i + 1]) for i in range(len(bboxes) - 1))
+		if still_overlapping:
+			plt.setp(tick_labels, fontsize='x-small')
+
 	if include_steddev:
-		ax.bar(x, std_devs_pos, color=('xkcd:slate', 0.8), label='Std Dev', zorder=5, bottom=1)
-		ax.bar(x, std_devs_neg, color=('xkcd:slate', 0.8), label='Std Dev', zorder=5, bottom=1)
+		sd_bars_neg = [-v for v in sd_bars]
+		ax.bar(x, sd_bars, color=('xkcd:slate', 0.8), label='Std Dev', zorder=5, bottom=0)
+		ax.bar(x, sd_bars_neg, color=('xkcd:slate', 0.8), label='Std Dev', zorder=5, bottom=0)
 
 	if filename is not None:
 		print(f"Saving LIWC variance plot to: {filename}")
