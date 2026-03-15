@@ -64,7 +64,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="LIWC Text Analysis")
 	parser.add_argument("-i", "--input_file", "--input_folder", required=True, help="Path to the input text file to be analyzed. If a folder, each file in the folder will be processed.")
 	parser.add_argument("-r", "--recursive", action='store_true', help="If set and input_file is a directory, process files in subdirectories recursively.")
-	parser.add_argument("-o", "--output_dir", required=False, help="Path to save the LIWC output (provide a direcotry, and the output is saved as the input filename with dict suffix).")
+	parser.add_argument("-o", "--output_dir", required=False, help="Path to save the LIWC output (provide a directory, and the output is saved as the input filename with dict suffix).")
 	parser.add_argument("-d", "--liwc_dictionary_path", default="LIWC22", help="Path to the LIWC dictionary file or directory containing multiple dictionaries. Default is LIWC default")
 	parser.add_argument("--liwc_executable_path", default='liwc-22-cli', help="Path to the LIWC executable (default assumes it's on PATH)")
 
