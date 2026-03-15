@@ -12,6 +12,19 @@ from matplotlib.colors import Normalize
 import math
 import utilities as utils
 
+import faulthandler
+faulthandler.enable()
+
+import sys
+import traceback
+
+
+def excepthook(exc_type, exc, tb):
+    traceback.print_exception(exc_type, exc, tb)
+
+
+sys.excepthook = excepthook
+
 def make_urgellplot_zoomed(nodes, colormap='cool', suptitle=None, cax=None, yscale='linear', filename=None, region=0.2):
 	assert(len(nodes) > 0)
 
@@ -107,8 +120,9 @@ def make_urgellplot_D(nodes, colormap='cool', suptitle=None, cax=None, yscale='l
 
 	ax.yaxis.tick_left()
 	ax.yaxis.grid()
-
 	ax.set_yscale(yscale)
+	ax.set_yticks([0, 1, 2, 3, 4])
+	ax.minorticks_off()
 
 	if suptitle is not None:
 		ax.set_title(suptitle)
@@ -406,7 +420,7 @@ if __name__ == "__main__":
 							if i < offset or i >= offset + last_row_count:
 								axes[idx].set_visible(False)
 				merge_axes = axes[:n]
-				plt.suptitle(f"All Communities from {os.path.basename(input_path)}", fontsize=16)
+				#plt.suptitle(f"All Communities from {os.path.basename(input_path)}", fontsize=16)
 				plt.tight_layout(pad=3)
 				#fig.tight_layout()
 				#fig.subplots_adjust(wspace=0.3, hspace=0.4)

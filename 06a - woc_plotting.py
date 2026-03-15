@@ -308,7 +308,7 @@ if __name__ == "__main__":
 							if i < offset or i >= offset + last_row_count:
 								axes[idx].set_visible(False)
 				merge_axes = axes[:n]
-				plt.suptitle(f"All Communities from {os.path.basename(input_path)}", fontsize=16)
+				#plt.suptitle(f"All Communities from {os.path.basename(input_path)}", fontsize=16)
 				plt.tight_layout(pad=3)
 				#fig.tight_layout()
 				#fig.subplots_adjust(wspace=0.3, hspace=0.4)

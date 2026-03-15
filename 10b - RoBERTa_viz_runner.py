@@ -6,90 +6,90 @@ import csv
 
 file_sets = {
 	"ARG_scc-pruned_1000central": [
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\ARG_scc-pruned_0comm_1000central.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\ARG_scc-pruned_1comm_1000central.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\ARG_scc-pruned_2comm_1000central.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\ARG_scc-pruned_3comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\ARG_scc-pruned_0comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\ARG_scc-pruned_1comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\ARG_scc-pruned_2comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\ARG_scc-pruned_3comm_1000central.csv",
 	],
 	"ARG_scc-pruned_all": [
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\ARG_scc-pruned_0comm_all.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\ARG_scc-pruned_1comm_all.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\ARG_scc-pruned_2comm_all.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\ARG_scc-pruned_3comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\ARG_scc-pruned_0comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\ARG_scc-pruned_1comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\ARG_scc-pruned_2comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\ARG_scc-pruned_3comm_all.csv",
 	],
 	"ARG_wcc-pruned_1000central": [
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\ARG_wcc-pruned_0comm_1000central.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\ARG_wcc-pruned_1comm_1000central.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\ARG_wcc-pruned_2comm_1000central.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\ARG_wcc-pruned_3comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\ARG_wcc-pruned_0comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\ARG_wcc-pruned_1comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\ARG_wcc-pruned_2comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\ARG_wcc-pruned_3comm_1000central.csv",
 	],
 	"ARG_wcc-pruned_all": [
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\ARG_wcc-pruned_0comm_all.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\ARG_wcc-pruned_1comm_all.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\ARG_wcc-pruned_2comm_all.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\ARG_wcc-pruned_3comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\ARG_wcc-pruned_0comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\ARG_wcc-pruned_1comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\ARG_wcc-pruned_2comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\ARG_wcc-pruned_3comm_all.csv",
 	],
 	"AUS_scc-pruned_1000central": [
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\AUS_scc-pruned_0comm_1000central.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\AUS_scc-pruned_1comm_1000central.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\AUS_scc-pruned_2comm_1000central.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\AUS_scc-pruned_3comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\AUS_scc-pruned_0comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\AUS_scc-pruned_1comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\AUS_scc-pruned_2comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\AUS_scc-pruned_3comm_1000central.csv",
 	],
 	"AUS_scc-pruned_all": [
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\AUS_scc-pruned_0comm_all.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\AUS_scc-pruned_1comm_all.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\AUS_scc-pruned_2comm_all.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\AUS_scc-pruned_3comm_all.csv"
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\AUS_scc-pruned_0comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\AUS_scc-pruned_1comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\AUS_scc-pruned_2comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\AUS_scc-pruned_3comm_all.csv"
 	],
 	"AUS_wcc-pruned_1000central": [
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\AUS_wcc-pruned_0comm_1000central.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\AUS_wcc-pruned_1comm_1000central.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\AUS_wcc-pruned_2comm_1000central.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\AUS_wcc-pruned_3comm_1000central.csv"
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\AUS_wcc-pruned_0comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\AUS_wcc-pruned_1comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\AUS_wcc-pruned_2comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\AUS_wcc-pruned_3comm_1000central.csv"
 	],
 	"AUS_wcc-pruned_all": [
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\AUS_wcc-pruned_0comm_all.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\AUS_wcc-pruned_1comm_all.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\AUS_wcc-pruned_2comm_all.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\AUS_wcc-pruned_3comm_all.csv"
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\AUS_wcc-pruned_0comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\AUS_wcc-pruned_1comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\AUS_wcc-pruned_2comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\AUS_wcc-pruned_3comm_all.csv"
 	],
 	"USA_scc-pruned_1000central": [
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\USA_scc-pruned_0comm_1000central.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\USA_scc-pruned_1comm_1000central.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\USA_scc-pruned_2comm_1000central.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\USA_scc-pruned_3comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\USA_scc-pruned_0comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\USA_scc-pruned_1comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\USA_scc-pruned_2comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\USA_scc-pruned_3comm_1000central.csv",
 	],
 	"USA_scc-pruned_all": [
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\USA_scc-pruned_0comm_all.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\USA_scc-pruned_1comm_all.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\USA_scc-pruned_2comm_all.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\USA_scc-pruned_3comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\USA_scc-pruned_0comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\USA_scc-pruned_1comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\USA_scc-pruned_2comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\USA_scc-pruned_3comm_all.csv",
 	],
 	"USA_wcc-pruned_1000central": [
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\USA_wcc-pruned_0comm_1000central.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\USA_wcc-pruned_1comm_1000central.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\USA_wcc-pruned_2comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\USA_wcc-pruned_0comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\USA_wcc-pruned_1comm_1000central.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\USA_wcc-pruned_2comm_1000central.csv",
 
 	],
 	"USA_wcc-pruned_all": [
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\USA_wcc-pruned_0comm_all.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\USA_wcc-pruned_1comm_all.csv",
-		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\USA_wcc-pruned_2comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\USA_wcc-pruned_0comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\USA_wcc-pruned_1comm_all.csv",
+		"C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\scores\\cardiffnlp\\twitter-roberta-large-emotion-latest\\USA_wcc-pruned_2comm_all.csv",
 	],
 }
 
 columns_to_plot = [
-	# "anger",
+	 "anger",
 	# "anticipation",
-	# "disgust",
-	# "fear",
-	# "joy",
+	 "disgust",
+	 "fear",
+	 "joy",
 	# "love",
-	# "optimism",
-	# "pessimism",
-	# "sadness",
+	"optimism",
+	"pessimism",
+	 "sadness",
 	# "surprise",
-	# "trust"
+	 "trust"
 ]
 
 community_info_files = {
@@ -112,17 +112,23 @@ def _load_module(path: Path, module_name: str):
 	return module
 
 
-viz_mod = _load_module(Path('10a - RoBERTa_viz.py'), 'viz_mod')
+viz_mod = _load_module(Path('10d - RoBERTa_viz_bar.py'), 'viz_mod')
 plot_func = getattr(viz_mod, 'plot')
+try:
+	finalise_plot = getattr(viz_mod, 'finalise_plot')
+except AttributeError:
+	finalise_plot = None
 
 for file_set_name, file_list in file_sets.items():
-	if len(columns_to_plot) == 0:
-		print(f"No columns specified to plot for file set '{file_set_name}'. Plotting as spectrum.")
+	# if len(columns_to_plot) == 0:
+		#TODO: this should actually be a dedicated switch, not just "if no columns specified".
+		# print(f"No columns specified to plot for file set '{file_set_name}'. Plotting as spectrum.")
 		fig = plt.figure(figsize=(20, 10), facecolor='w')
 		ax = fig.add_subplot(111)
-		plt.title(f"RoBERTa Scores - {file_set_name} ", fontsize=16)
-		plt.xlabel("Score Spectrum")
-		plt.ylabel("Density")
+		#plt.title(f"RoBERTa Scores - {file_set_name} ", fontsize=16)
+		#plt.xlabel("Sentiment Polarity")
+		#plt.ylabel("Density")
+		legend_handles = []
 		for file_name in file_list:
 			print(f"Processing file: {file_name}")
 			file_path = Path(file_name)
@@ -133,12 +139,15 @@ for file_set_name, file_list in file_sets.items():
 			print(f"Preparing to plot '{file_name}'")
 
 			community_info_file = '_'.join(file_set_name.split('_')[:2])
-			output_dir = Path("C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\visualizations\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\" + file_set_name + "\\")
+			output_dir = Path("C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\visualizations\\cardiffnlp\\twitter-roberta-large-emotion-latest\\" + file_set_name + "\\")
 			os.makedirs(output_dir, exist_ok=True)
-			print("No columns specified, defaulting to all columns in CSV.")
+			#print("No columns specified, defaulting to all columns in CSV.")
 			with open(file_name, "r", encoding="utf-8", errors="ignore") as f:
 				reader = csv.DictReader(f)
-				columns = reader.fieldnames[1:]
+				if columns_to_plot is None:
+					columns = reader.fieldnames[1:]
+				else:
+					columns = columns_to_plot
 				print(f"Columns found: {columns}")
 
 			plot_func(
@@ -146,41 +155,45 @@ for file_set_name, file_list in file_sets.items():
 				input_path=file_name,
 				columns=columns,
 				community_info=community_info_files[community_info_file],
-				spectrum=True
+				#spectrum=True
 			)
-		plt.legend(title="Communities")
+		if finalise_plot is not None:
+			#The box plot requires an extra function call
+			finalise_plot(ax, columns)
+		else:	
+			plt.legend(title="Communities")
 		plt.tight_layout()
 		plt.savefig(output_dir.joinpath(f"{file_set_name}.png"), dpi=300)
 		plt.close()
-	else:
-		for column in columns_to_plot:
-			print(f"Preparing to plot column '{column}' for file set '{file_set_name}'")
-			fig = plt.figure(figsize=(20, 10), facecolor='w')
-			ax = fig.add_subplot(111)
-			plt.title(f"RoBERTa Scores - {file_set_name} - {column}", fontsize=16)
-			plt.xlabel("Emotion Score")
-			plt.ylabel("Density")
-			for file_name in file_list:
-				print(f"Processing file: {file_name}")
-				file_path = Path(file_name)
-				if not file_path.is_file():
-					print(f"File not found: {file_name}")
-					continue
+	# else:
+	# 	for column in columns_to_plot:
+	# 		print(f"Preparing to plot column '{column}' for file set '{file_set_name}'")
+	# 		fig = plt.figure(figsize=(20, 10), facecolor='w')
+	# 		ax = fig.add_subplot(111)
+	# 		plt.title(f"RoBERTa Scores - {file_set_name} - {column}", fontsize=16)
+	# 		plt.xlabel("Emotion Score")
+	# 		plt.ylabel("Density")
+	# 		for file_name in file_list:
+	# 			print(f"Processing file: {file_name}")
+	# 			file_path = Path(file_name)
+	# 			if not file_path.is_file():
+	# 				print(f"File not found: {file_name}")
+	# 				continue
 				
-				print(f"Preparing to plot column '{column}' for file '{file_name}'")
+	# 			print(f"Preparing to plot column '{column}' for file '{file_name}'")
 
-				community_info_file = '_'.join(file_set_name.split('_')[:2])
-				output_dir = Path("C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\visualizations\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\" + file_set_name + "\\")
-				os.makedirs(output_dir, exist_ok=True)
+	# 			community_info_file = '_'.join(file_set_name.split('_')[:2])
+	# 			output_dir = Path("C:\\Users\\jabcm\\OneDrive\\PhD\\ISIS\\results\\RoBERTa\\outputs\\visualizations\\cardiffnlp\\twitter-roberta-base-sentiment-latest\\" + file_set_name + "\\")
+	# 			os.makedirs(output_dir, exist_ok=True)
 
 				
-				plot_func(
-					ax=ax,
-					input_path=file_name,
-					columns=[column],
-					community_info=community_info_files[community_info_file]
-				)
-			plt.legend(title="Communities")
-			plt.tight_layout()
-			plt.savefig(output_dir.joinpath(f"{file_set_name}_{column}.png"), dpi=300)
-			plt.close()
+	# 			plot_func(
+	# 				ax=ax,
+	# 				input_path=file_name,
+	# 				columns=[column],
+	# 				community_info=community_info_files[community_info_file]
+	# 			)
+	# 		plt.legend(title="Communities")
+	# 		plt.tight_layout()
+	# 		plt.savefig(output_dir.joinpath(f"{file_set_name}_{column}.png"), dpi=300)
+	# 		plt.close()

@@ -38,7 +38,7 @@ def plot(ax, input_path, community_info, columns, spectrum=False):
 					data=values,
 					color=utils.get_community_colour(comm_name, community_info),
 					label=f"{comm_name}",
-					linewidth=2
+					linewidth=3
 				)
 		else:
 			print(f"Plotting spectrum for community: {comm_name} with {len(data['spectrum'])} entries. Colour: {utils.get_community_colour(comm_name, community_info)}")
@@ -72,10 +72,10 @@ if __name__ == "__main__":
 		plt.xlabel("Continuum Score (-1 = Strong Negative, 1 = Strong Positive)")
 	else:
 		if args.columns:
-			plt.title(f"RoBERTa Sentiment Analysis KDE Plot for columns: {args.columns}")
+			pass#plt.title(f"RoBERTa Sentiment Analysis KDE Plot for columns: {args.columns}")
 		else:
-			plt.title("RoBERTa Sentiment Analysis KDE Plot")
-		plt.xlabel("Sentiment Score")
+			pass#plt.title("RoBERTa Sentiment Analysis KDE Plot")
+		plt.xlabel("Sentiment Polarity")
 	plt.ylabel("Density")
 	columns = None
 	if not args.columns:

@@ -12,6 +12,8 @@ from matplotlib.colors import Normalize
 import math
 import utilities as utils
 
+linestyles = ['--', '-.', ':', '-']
+
 
 def make_ccdf(nodes, yscale='linear', colour="k", suptitle=None, cax=None, filename=None,):
 	assert(len(nodes) > 0)
@@ -33,7 +35,7 @@ def make_ccdf(nodes, yscale='linear', colour="k", suptitle=None, cax=None, filen
 	else:
 		ax = cax
 		
-	ax.step(ccdf, π_values, where='post', c=colour)
+	ax.step(ccdf, π_values, where='post', c=colour, lw=2, linestyle=":")
 	ax.set_xlim((0, 1))
 	ax.set_ylim((0, 100))
 
@@ -133,7 +135,7 @@ def compute_ccdf_and_area(values, vmin=0, vmax=100, normalize=False):
     print(f"CCDF area: {area:.6f}")
     return x, ccdf, area
 
-def make_kde_survival(nodes, yscale='linear', colour="k", suptitle=None, cax=None, filename=None, bandwidth=None):
+def make_kde_survival(nodes, yscale='linear', colour="k", suptitle=None, cax=None, filename=None, bandwidth=None, linestyle=0):
 	assert(len(nodes) > 0)
 
 	n_support = 100
@@ -177,13 +179,20 @@ def make_kde_survival(nodes, yscale='linear', colour="k", suptitle=None, cax=Non
 		running += pmf[π]
 		sf[π] = running
 
+	x_targets = [i / 20 for i in range(21)]  # 0.05 increments
+	label = suptitle if suptitle is not None else "KDE Survival"
+	print(f"[{label}] π values at x-axis intervals:")
+	for xt in x_targets:
+		closest_π = min(range(n_support + 1), key=lambda π: abs(sf[π] - xt))
+		print(f"  x={xt:.2f} -> π ≈ {closest_π}")
+
 	if cax == None:
 		fig = plt.figure(figsize=(20,10),facecolor='w')
 		ax = fig.add_subplot(111)
 	else:
 		ax = cax
 
-	ax.plot(sf, π_values, where='post', c=colour)
+	ax.plot(sf, π_values, c=colour, lw=2, linestyle=linestyles[linestyle])
 	ax.set_xlim((0, 1))
 	ax.set_ylim((0, n_support))
 
@@ -195,7 +204,7 @@ def make_kde_survival(nodes, yscale='linear', colour="k", suptitle=None, cax=Non
 	if suptitle is not None:
 		ax.set_title(suptitle)
 
-	ax.set_xlabel('KDE SF P(π ≥ s)')
+	ax.set_xlabel('Proportion')
 	ax.set_ylabel('π value')
 	if filename is not None:
 		plt.savefig(filename, dpi=300, bbox_inches='tight')
@@ -435,7 +444,7 @@ if __name__ == "__main__":
 			overlay_data[output_filebase].update(comm_dict)
 		data = overlay_data
 		overlay_axes = plt.figure(figsize=(12, 12), facecolor='w').add_subplot(111)
-		suptitle = f"All communites for {filename}"
+		suptitle = ""#f"All communites for {filename}"
 	
 	for idx, output_path in enumerate(output_paths):
 		if not args.merge_plots and not args.overlay:
@@ -451,22 +460,22 @@ if __name__ == "__main__":
 		if args.overlay:
 			#output_file = f'{output_path}_overlay_plot.png'
 			#output_file = f'{output_path}_overlay_betabinomial_plot.png'
-			#output_file = f'{output_path}_overlay_kde_plot.png'
-			output_file = f'{output_path}_overlay_CAUC_plot.png'
+			output_file = f'{output_path}_overlay_kde_plot.png'
+			#output_file = f'{output_path}_overlay_CAUC_plot.png'
 			legend_patches = {}
-			for comm, nodes in comm_dict.items():
+			for idx, (comm, nodes) in enumerate(comm_dict.items()):
 				if args.community == comm or args.community == -2:
 					color = utils.get_community_colour(comm, args.community_info)
 					label = utils.get_community_label(comm, args.community_info)
 					if label not in legend_patches:
 						legend_patches[label] = mpatches.Patch(color=color, label=label)
-					#make_ccdf(value, suptitle=suptitle, filename=output_file, cax=overlay_axes, colour=color)
-					#make_betabinomial_survival(value, suptitle=suptitle, filename=bi_output_file, cax=overlay_axes, colour=color)
-					#make_kde_survival(value, suptitle=suptitle, filename=output_file, cax=overlay_axes, colour=color)
+					#make_ccdf(nodes, suptitle=suptitle, filename=output_file, cax=overlay_axes, colour=color)
+					# make_betabinomial_survival(nodes, suptitle=suptitle, filename=bi_output_file, cax=overlay_axes, colour=color)
+					make_kde_survival(nodes, suptitle=suptitle, filename=output_file, cax=overlay_axes, colour=color, linestyle=idx)
 					pi_values = [n.π for n in nodes]
 					print(f"Community {comm} - mean π: {sum(pi_values)/len(pi_values):.2f}")
 					x, ccdf, area = compute_ccdf_and_area(pi_values, vmin=0, vmax=100)
-					make_ccdf_cumulative_integral(nodes, suptitle=suptitle, filename=output_file, cax=overlay_axes, colour=color)
+					#make_ccdf_cumulative_integral(nodes, suptitle=suptitle, filename=output_file, cax=overlay_axes, colour=color)
 			overlay_axes.legend(handles=list(legend_patches.values()), loc="upper right")
 			overlay_axes.figure.savefig(output_file, dpi=300, bbox_inches="tight")
 		if args.merge_plots:

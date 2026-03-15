@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
 		fig = plt.figure(figsize=(20, 10), facecolor='w')
 		ax = fig.add_subplot(111)
-		plt.title(f"Significant values for RoBERTa emotion: {col}")
+		#plt.title(f"Significant values for RoBERTa emotion: {col}")
 		ax.pie(
 			sizes, 
 			labels=labels, 
