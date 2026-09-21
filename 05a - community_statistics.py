@@ -47,7 +47,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="Prints statistics about communities in a graphml file.")
 	utils.create_input_args(parser, ext=".graphml")
 	parser.add_argument("--verbose", action='store_true', help="Enable verbose output for debugging and progress tracking")
-	parser.add_argument("--community_label", "-C", help="Label attribute for community detection (default: 'community')", default="community")
+	parser.add_argument("--community-label", "-C", help="Label attribute for community detection (default: 'community')", default="community")
 	parser.add_argument("--community-size", type=int, default=5, help="Size of a community to consider, as a percentage of the total graph (default: 5%%).")
 
 	args = parser.parse_args()
